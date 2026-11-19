@@ -1,0 +1,18 @@
+---
+base_images:
+- name: basic-rh-10
+  type: rhel
+  family: rhel
+  family_version: 8
+  is_default: true
+  output_image_name: '{{ this.name }}-{{ this.family }}-{{ this.family_version }}-{{ execution.timestamp}}'
+  runtimes:
+  - name: gcp-my-rh10
+    runtime: gcloud-east1
+    ssh_username: packer
+    output_image_name: GCP-RH10-{{ this.name }}-{{ execution.timestamp }}
+    owners:
+    - almalinux-cloud
+    query:
+      filters:
+        name: almalinux-10-v*

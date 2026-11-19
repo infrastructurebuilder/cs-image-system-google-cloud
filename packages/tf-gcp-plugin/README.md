@@ -7,17 +7,30 @@ builders** (`tf-gcp-pd`, `tf-gcp-filestore`, `tf-gcp-gcs`), which turn every
 declared storage into a `module` call against the matching
 `tfmodules/gcp_storage_*` module. It contains no generic machinery of its
 own: every builder subclasses the provider-neutral terraform roots of
-[cs-image-system-tofu-roots](../tofu-roots/README.md#the-terraform-roots)
+[cs-image-system-tofu-roots](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/tofu-roots/README.md#the-terraform-roots)
 (`TofuInstanceBuilderBase`, `TofuStorageBuilderBase`) and answers their
 hooks with what is Google Cloud's own: the `google` provider configured
 from the runtime's project, region and zone, the `gce_instance` and
 `gcp_storage_*` modules, a GCE image resolved through its family, a
 persistent disk attached as an in-place attribute, and `gcloud`
 transition scripts. It does not depend on the AWS root
-([cs-image-system-tf-ebs-instance-plugin](../tf-ebs-instance-plugin/README.md)),
+([cs-image-system-tf-ebs-instance-plugin](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/tf-ebs-instance-plugin/README.md)),
 which is another subclass of the same bases. The runtime it targets is
 a `gcloud` runtime builder from `cs-image-system-gcloud-runtime-plugin`,
 which supplies the project, region, zone, network and session mechanism.
+
+## Installing
+
+This package is one of the Google Cloud family's three distributions,
+which release together under one number. An operator installs the family
+through the system's `gcloud` extra:
+
+```sh
+uv tool install 'cs-image-system[gcloud]'
+```
+
+The system's operations guide says which extra carries which provider:
+[OPERATIONS.md, "Installing a release"](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md#installing-a-release).
 
 ## What it registers
 
@@ -65,8 +78,10 @@ the AWS root installed as well sees no collision.
 2. An **instance entry** selects a builder by `type:` = the builder's name
    or alias (`type: tofu-gce`); a **storage entry** does the same
    (`type: gcp-pd`). `default` resolves to the builder with
-   `is_default: true`, which in the fixture is an AWS builder, so GCP items
-   always name their builder.
+   `is_default: true`, which in the fixture is `tofu-gce` for instances
+   and `gcp-pd` for storages; the fixture's items name their builder all
+   the same, as GCP items must in a tree whose default builder is another
+   cloud's.
 
 ## Models
 
@@ -78,13 +93,13 @@ models are pydantic dataclasses; unknown keys are refused at load, and a
 The inherited base fields (`name`, `type`, `description`, `aliases`,
 `executable`, `is_default`, `config`, `gitignore`, `tags`, `runtime`) are
 those of every builder model; see
-[builder_model.py](../base/src/cs_image_system/base/models/builder_model.py).
+[builder_model.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/builder_model.py).
 The full field tables are the configuration reference's
-([instance builders](../../docs/CONFIGURATION.md#81-instance-builders),
-[storage builders](../../docs/CONFIGURATION.md#82-storage-builders)).
+([instance builders](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/CONFIGURATION.md#81-instance-builders),
+[storage builders](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/CONFIGURATION.md#82-storage-builders)).
 What this package does with the fields every class here inherits from
 the neutral models of tofu-roots
-([tofu_models.py](../tofu-roots/src/cs_image_system/tofu_roots/tofu_models.py)):
+([tofu_models.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/tofu-roots/src/cs_image_system/tofu_roots/tofu_models.py)):
 
 - `executable` names an entry in `cfg/executables.yml` (default `tofu`).
 - `required_plugins` lists the terraform providers for the root; empty
@@ -96,14 +111,14 @@ the neutral models of tofu-roots
 ### `TofuGceInstanceBuilderModel` (`tofu-gce`)
 
 Extends `TofuInstanceBuilderModelBase` from
-[tofu_models.py](../tofu-roots/src/cs_image_system/tofu_roots/tofu_models.py)
+[tofu_models.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/tofu-roots/src/cs_image_system/tofu_roots/tofu_models.py)
 (`executable`, `required_plugins`, `state_configuration`), which extends
 the base `InstanceBuilderModel`
-([instance_builder.py](../base/src/cs_image_system/base/models/instance_builder.py)).
+([instance_builder.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/instance_builder.py)).
 It adds no fields; it only sets `type` to `tofu-gce`.
 
 The `Instance` items it reads are the base ones from
-[instance.py](../base/src/cs_image_system/base/models/instance.py):
+[instance.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/instance.py):
 `image`, `runtime`, `storages` (each `name` + `mount_point`), `userdata`,
 `image_policy` (`pinned` | `follow`), `ephemeral`, `on_failure`
 (`keep` | `teardown`), `teardown_after`, `tags`. Differences from the AWS
@@ -126,10 +141,10 @@ root:
 ### `TofuGcpStorageBuilderModel` (`tf-gcp`)
 
 Extends `TofuStorageBuilderModelBase` from
-[tofu_models.py](../tofu-roots/src/cs_image_system/tofu_roots/tofu_models.py)
+[tofu_models.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/tofu-roots/src/cs_image_system/tofu_roots/tofu_models.py)
 (`executable`, `required_plugins`, `state_configuration`, `variables`;
 it extends the base `StorageBuilderModel`,
-[storage_builder.py](../base/src/cs_image_system/base/models/storage_builder.py)).
+[storage_builder.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/storage_builder.py)).
 It adds no fields; `type` is `tf-gcp`. Its `variables` field keeps the base
 type `ModuleVariables`. Its `__post_init__` refuses an instance of this
 exact class (`type: tf-gcp`) with `storage builder '<name>': type 'tf-gcp'
@@ -140,7 +155,7 @@ subclasses pass through.
 ### `GcpVariables`
 
 Extends `ModuleVariables`
-([module_variables.py](../base/src/cs_image_system/base/models/module_variables.py))
+([module_variables.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/module_variables.py))
 and adds no fields: the only declarable input is `tags`, a map of
 builder-wide default **labels**. The builders emit them as `labels`, with
 the storage item's own tags over the builder's, then `csis_storage=<name>`
@@ -152,7 +167,7 @@ refused; the module tunables (`size`, `disk_type`, `tier`, `capacity_gb`,
 
 Persistent disk: the EBS equivalent, single-attach, POSIX. Its own keys
 (the full table is in the
-[configuration reference](../../docs/CONFIGURATION.md#82-storage-builders)):
+[configuration reference](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/CONFIGURATION.md#82-storage-builders)):
 
 - `size` (default 100): disk size in GB.
 - `disk_type` (default `pd-balanced`): the GCE disk type, for example
@@ -182,7 +197,7 @@ own keys:
 ### The `Storage` item the storage builders read
 
 Base `Storage` from
-[storage.py](../base/src/cs_image_system/base/models/storage.py):
+[storage.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/storage.py):
 `type`, `runtime`, `groups`, `public_read`, `share_mode` (`2770` | `2775`),
 `state` (`active` | `archived` | `destroyed`), `bucket_name` (GCS), `tags`.
 Its `tags` keys are checked at `validate` against the builder's runtime:
@@ -217,7 +232,7 @@ remote-state references, the module-call rendering, the deferred
 `plan -> gate -> apply` sequence, the detach and decommission whitelists,
 the ephemeral sequence, the finalization hooks, the storage state
 machine and the state query are the neutral roots' of tofu-roots;
-see [The terraform roots](../tofu-roots/README.md#the-terraform-roots)
+see [The terraform roots](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/tofu-roots/README.md#the-terraform-roots)
 there for what the bases own and the full hook table. This section lists
 what the GCP classes answer and what they leave at the base's default.
 
@@ -226,7 +241,7 @@ what the GCP classes answer and what they leave at the base's default.
 Source:
 [tf_gce_instance_builder.py](src/cs_image_system/tf_gcp_plugin/tf_gce_instance_builder.py).
 Extends `TofuInstanceBuilderBase`
-([tofu_instance_builder.py](../tofu-roots/src/cs_image_system/tofu_roots/tofu_instance_builder.py)).
+([tofu_instance_builder.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/tofu-roots/src/cs_image_system/tofu_roots/tofu_instance_builder.py)).
 
 **The hooks it answers.** `_provider_name()` is `google` and
 `_provider_source()` `hashicorp/google`; `_provider_config(rtb)` is
@@ -300,7 +315,7 @@ The base's `_replacements()` names
 
 **The base's, unchanged.** `get_commands_to_run_after`: the
 generation-time `fmt`, `init` and `validate`, then the deferred gated
-sequence of [OPERATIONS.md](../../docs/OPERATIONS.md#the-apply-gate),
+sequence of [OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md#the-apply-gate),
 with this root's unmount steps and `-replace` targets on the plan and
 `apply-check --lifecycle instances --root <B> --root-alias <runtime>`
 plus `apply` only when `config.apply_instances` allows the root. Also
@@ -323,7 +338,7 @@ Two consequences of the inheritance:
 Source:
 [tf_gcp_storage_builder.py](src/cs_image_system/tf_gcp_plugin/tf_gcp_storage_builder.py).
 Extends `TofuStorageBuilderBase`
-([tofu_storage_builder.py](../tofu-roots/src/cs_image_system/tofu_roots/tofu_storage_builder.py));
+([tofu_storage_builder.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/tofu-roots/src/cs_image_system/tofu_roots/tofu_storage_builder.py));
 the storage state machine, the live/tombstone/archived split, the
 `output "storage_<label>"` blocks, the gid-by-reference rule, the state
 query over every declared and recorded storage and the deferred command
@@ -375,32 +390,32 @@ From the frozen golden emission over the test fixture (the fixture declares
 root in the golden).
 
 GCE instance root (`tofu-gce`), under
-[generated/instance-image/tofu-gce/instance-generation/](../../tests/fixtures/golden/generated/instance-image/tofu-gce/instance-generation/):
+[generated/instance-image/tofu-gce/instance-generation/](../../tests/golden/generated/instance-image/tofu-gce/instance-generation/):
 
 | File | Content |
 |---|---|
-| [tofu-gce-instance-generation.tf](../../tests/fixtures/golden/generated/instance-image/tofu-gce/instance-generation/tofu-gce-instance-generation.tf) | `terraform {}` with `google` from `hashicorp/google` and `backend "s3" {}`; `provider "google"` (`project = "csis-sandbox"`, `region = "us-east1"`, `zone = "us-east1-b"`, alias `tofu_gce`); `variable "gce_test_image"`, `variable "enrollment_token"`; `data "terraform_remote_state"` for `aws_efs`, `aws_ebs`, `aws_s3`, `gcp_pd`, `gcp_gcs`, `oktagroups` |
-| [tofu-gce-instance-generation-instance-gce_test.tf](../../tests/fixtures/golden/generated/instance-image/tofu-gce/instance-generation/tofu-gce-instance-generation-instance-gce_test.tf) | `module "instance_gce_test"` calling `../../../../../tfmodules/gce_instance` with `name = "gce-test"`, `image = var.gce_test_image`, `image_family = "imgfile-basic-dask"`, `machine_type = "e2-micro"`, `zone`, `subnetwork`, `public_ip = false`, `startup_script = templatefile(...)`, and `attached_disks` for `gce_data` with `device_name = "gce-data"` |
-| [user-data-gce_test.sh.tftpl](../../tests/fixtures/golden/generated/instance-image/tofu-gce/instance-generation/user-data-gce_test.sh.tftpl) | the launch script: the `gce_data` mount at `/mnt/gce-data` from `/dev/disk/by-id/google-gce-data`, the `coops` subtree |
-| [tofu-gce-instance-generation.tfbackend.hcl](../../tests/fixtures/golden/generated/instance-image/tofu-gce/instance-generation/tofu-gce-instance-generation.tfbackend.hcl) | the S3 partial backend configuration with `key = "statefiles/csia-image-system-test/tofu_gce.tfstate"` |
-| [run-instance-image.sh](../../tests/fixtures/golden/generated/instance-image/run-instance-image.sh) | the `tofu-gce/instance-generation` block: `rm -f tfplan`, `init -input=false -reconfigure -backend-config=...`, `plan`, `gate-plan` |
+| [tofu-gce-instance-generation.tf](../../tests/golden/generated/instance-image/tofu-gce/instance-generation/tofu-gce-instance-generation.tf) | `terraform {}` with `google` from `hashicorp/google` and `backend "gcs" {}`; `provider "google"` (`project = "csis-sandbox"`, `region = "us-east1"`, `zone = "us-east1-b"`, alias `tofu_gce`); `variable "gce_test_image"`, `variable "enrollment_token"`; `data "terraform_remote_state"` for `gcp_pd`, `gcp_gcs` |
+| [tofu-gce-instance-generation-instance-gce_test.tf](../../tests/golden/generated/instance-image/tofu-gce/instance-generation/tofu-gce-instance-generation-instance-gce_test.tf) | `module "instance_gce_test"` calling `../../../../../tfmodules/gce_instance` with `name = "gce-test"`, `image = var.gce_test_image`, `image_family = "imgfile-basic-dask"`, `machine_type = "e2-micro"`, `zone`, `subnetwork`, `public_ip = false`, `startup_script = templatefile(...)`, and `attached_disks` for `gce_data` with `device_name = "gce-data"` |
+| [user-data-gce_test.sh.tftpl](../../tests/golden/generated/instance-image/tofu-gce/instance-generation/user-data-gce_test.sh.tftpl) | the launch script: the `gce_data` mount at `/mnt/gce-data` from `/dev/disk/by-id/google-gce-data`, the `coops` subtree |
+| [tofu-gce-instance-generation.tfbackend.hcl](../../tests/golden/generated/instance-image/tofu-gce/instance-generation/tofu-gce-instance-generation.tfbackend.hcl) | the `gcs` partial backend configuration with `prefix = "statefiles/csia/tofu_gce"` |
+| [run-instance-image.sh](../../tests/golden/generated/instance-image/run-instance-image.sh) | the `tofu-gce/instance-generation` block: `rm -f tfplan`, `init -input=false -reconfigure -backend-config=...`, `plan`, `gate-plan` |
 
 GCP storage roots, under
-[generated/storage/](../../tests/fixtures/golden/generated/storage/):
+[generated/storage/](../../tests/golden/generated/storage/):
 
 | File | Content |
 |---|---|
-| [gcp-pd/storage-generation/gcp-pd-storage-generation.tf](../../tests/fixtures/golden/generated/storage/gcp-pd/storage-generation/gcp-pd-storage-generation.tf) | terraform block, `provider "google"` alias `gcp_pd`, remote state of `oktagroups` |
-| [gcp-pd/storage-generation/gcp-pd-storage-generation-storage-gce_data.tf](../../tests/fixtures/golden/generated/storage/gcp-pd/storage-generation/gcp-pd-storage-generation-storage-gce_data.tf) | `module "storage_gce_data"` against `tfmodules/gcp_storage_pd`: `name = "gce-data"`, `size = 30`, `disk_type = "pd-standard"`, `labels = { csis_group_coops = "true", csis_storage = "gce_data" }`, `zone`; `output "storage_gce_data"` |
-| [gcp-gcs/storage-generation/gcp-gcs-storage-generation-storage-gce_bucket.tf](../../tests/fixtures/golden/generated/storage/gcp-gcs/storage-generation/gcp-gcs-storage-generation-storage-gce_bucket.tf) | `module "storage_gce_bucket"` against `tfmodules/gcp_storage_gcs`: `bucket_name`, `labels = { csis_storage = "gce_bucket" }`, `location = "us-east1"`; `output "storage_gce_bucket"` |
-| [gcp-pd-storage-generation.tfbackend.hcl](../../tests/fixtures/golden/generated/storage/gcp-pd/storage-generation/gcp-pd-storage-generation.tfbackend.hcl), [gcp-gcs-storage-generation.tfbackend.hcl](../../tests/fixtures/golden/generated/storage/gcp-gcs/storage-generation/gcp-gcs-storage-generation.tfbackend.hcl) | the partial backend configurations |
-| [run-storage.sh](../../tests/fixtures/golden/generated/storage/run-storage.sh) | the deferred sequence per root |
+| [gcp-pd/storage-generation/gcp-pd-storage-generation.tf](../../tests/golden/generated/storage/gcp-pd/storage-generation/gcp-pd-storage-generation.tf) | terraform block with `backend "gcs" {}`, `provider "google"` alias `gcp_pd` |
+| [gcp-pd/storage-generation/gcp-pd-storage-generation-storage-gce_data.tf](../../tests/golden/generated/storage/gcp-pd/storage-generation/gcp-pd-storage-generation-storage-gce_data.tf) | `module "storage_gce_data"` against `tfmodules/gcp_storage_pd`: `name = "gce-data"`, `size = 30`, `disk_type = "pd-standard"`, `labels = { csis_group_coops = "true", csis_storage = "gce_data" }`, `zone`; `output "storage_gce_data"` |
+| [gcp-gcs/storage-generation/gcp-gcs-storage-generation-storage-gce_bucket.tf](../../tests/golden/generated/storage/gcp-gcs/storage-generation/gcp-gcs-storage-generation-storage-gce_bucket.tf) | `module "storage_gce_bucket"` against `tfmodules/gcp_storage_gcs`: `bucket_name`, `labels = { csis_storage = "gce_bucket" }`, `location = "us-east1"`; `output "storage_gce_bucket"` |
+| [gcp-pd-storage-generation.tfbackend.hcl](../../tests/golden/generated/storage/gcp-pd/storage-generation/gcp-pd-storage-generation.tfbackend.hcl), [gcp-gcs-storage-generation.tfbackend.hcl](../../tests/golden/generated/storage/gcp-gcs/storage-generation/gcp-gcs-storage-generation.tfbackend.hcl) | the partial backend configurations |
+| [run-storage.sh](../../tests/golden/generated/storage/run-storage.sh) | the deferred sequence per root |
 
 The read-models record the GCP items with their plugin and capability type:
-[meta-state/storage.yaml](../../tests/fixtures/golden/meta-state/storage.yaml)
+[meta-state/storage.yaml](../../tests/golden/meta-state/storage.yaml)
 (`gce_data`: builder `gcp-pd`, plugin `tf-gcp-pd`, type `pd`, cardinality
 `single`, attached by `gce-test`) and
-[meta-state/launch-params.yaml](../../tests/fixtures/golden/meta-state/launch-params.yaml)
+[meta-state/launch-params.yaml](../../tests/golden/meta-state/launch-params.yaml)
 (`gce-test`: session `iap`, mount device `/dev/disk/by-id/google-gce-data`).
 
 Modules called (shipped by the gcloud-runtime plugin as package data; `cs-image-system modules` lists them): [tfmodules/gce_instance](../gcloud-runtime-plugin/src/cs_image_system/gcloud_runtime/tfmodules/gce_instance/main.tf),
@@ -411,7 +426,7 @@ Modules called (shipped by the gcloud-runtime plugin as package data; `cs-image-
 ## Example configuration
 
 From the test fixture. The instance builder,
-[cfg/instance-builders.yml](../../tests/fixtures/config/cfg/instance-builders.yml):
+[cfg/instance-builders.yml](../../tests/fixture/cfg/instance-builders.yml):
 
 ```yaml
 instance_builders:
@@ -419,11 +434,12 @@ instance_builders:
     type: tofu-gce
     runtime: gcloud-east1
     executable: open-tofu-1
-    state_configuration: s3-east2
+    state_configuration: gcs-east1
+    is_default: true
 ```
 
 The storage builders,
-[cfg/storage-builders.yml](../../tests/fixtures/config/cfg/storage-builders.yml):
+[cfg/storage-builders.yml](../../tests/fixture/cfg/storage-builders.yml):
 
 ```yaml
 storage_builders:
@@ -431,17 +447,20 @@ storage_builders:
     type: tf-gcp-pd
     executable: open-tofu-1
     runtime: gcloud-east1
+    state_configuration: gcs-east1
     size: 30
     disk_type: pd-standard
+    is_default: true
   - name: gcp-gcs
     type: tf-gcp-gcs
     executable: open-tofu-1
     runtime: gcloud-east1
+    state_configuration: gcs-east1
     bucket_name: csis-sandbox-86233086783-default-bucket
 ```
 
 The runtime they name, from
-[cfg/runtime-builders.yml](../../tests/fixtures/config/cfg/runtime-builders.yml)
+[cfg/runtime-builders.yml](../../tests/fixture/cfg/runtime-builders.yml)
 (the fields this plugin reads):
 
 ```yaml
@@ -466,7 +485,7 @@ runtime_builders:
           public: true
 ```
 
-The storages, [storages/gce.yaml](../../tests/fixtures/config/storages/gce.yaml):
+The storages, [storages/gce.yaml](../../tests/fixture/storages/gce.yaml):
 
 ```yaml
 storages:
@@ -482,7 +501,7 @@ storages:
 ```
 
 The instance, from
-[instances/instances.yaml](../../tests/fixtures/config/instances/instances.yaml):
+[instances/instances.yaml](../../tests/fixture/instances/instances.yaml):
 
 ```yaml
 instances:
@@ -498,7 +517,7 @@ instances:
 
 An overlay that declares the same instance for one invocation and lets only
 the GCE root apply,
-[overlays/gce-cycle-launch.yaml](../../tests/fixtures/config/overlays/gce-cycle-launch.yaml):
+[overlays/gce-cycle-launch.yaml](../../tests/fixture/overlays/gce-cycle-launch.yaml):
 
 ```yaml
 config:
@@ -516,9 +535,9 @@ instances:
 
 Adding `ephemeral: true` to such an instance makes the root launch it,
 verify it and tear it down in the same run. The companion overlays
-[gce-cycle-decommission.yaml](../../tests/fixtures/config/overlays/gce-cycle-decommission.yaml)
+[gce-cycle-decommission.yaml](../../tests/fixture/overlays/gce-cycle-decommission.yaml)
 (`undeclare: true`, a gated destroy) and
-[gce-cycle-storage-teardown.yaml](../../tests/fixtures/config/overlays/gce-cycle-storage-teardown.yaml)
+[gce-cycle-storage-teardown.yaml](../../tests/fixture/overlays/gce-cycle-storage-teardown.yaml)
 (`state: destroyed` for both storages, with `apply_storage: [gcloud-east1]`)
 drive the rest of a change cycle.
 
@@ -529,7 +548,7 @@ executable, the state backend, the identity workspace, the modules
 beside the configuration root (`cs-image-system modules --write` writes
 them from the installed plugins), the system's own CLI on `PATH`
 at execution time); see
-[hashicorp-utils](../hashicorp-utils/README.md#prerequisites-and-integration),
+[hashicorp-utils](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/hashicorp-utils/README.md#prerequisites-and-integration),
 whose roots these builders subclass. This section lists what the GCP
 classes need on top of that, and how each is found.
 
@@ -546,7 +565,7 @@ the terraform, provider, variable, backend and remote-state blocks),
 depend on `cs-image-system-tf-ebs-instance-plugin` or on
 `cs-image-system-aws-runtime-plugin`: installing it installs no AWS
 package and no `boto3`, which the neutral-root test
-([tests/test_neutral_tofu_root.py](../../tests/test_neutral_tofu_root.py))
+([tests/test_neutral_tofu_root.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_neutral_tofu_root.py))
 proves by syncing an environment for this plugin and the container one
 alone. The compute client is imported lazily, inside
 `TofuPdStorageBuilder._lookup`, so it is needed only by `state query`
@@ -591,19 +610,20 @@ credentials. All three therefore read ADC from the environment:
 `~/.config/gcloud/application_default_credentials.json`. The live form is
 an impersonated login, `gcloud auth application-default login
 --impersonate-service-account=csis-runner@<project>.iam.gserviceaccount.com`
-([OPERATIONS.md](../../docs/OPERATIONS.md), "What each step needs").
+([OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md), "What each step needs").
 `make_credentials()` does have a branch that reads
 `credentials.service_account_key_file` from the runtime, but the `gcloud`
 runtime's `credentials:` is the empty base
-([credentials.py](../base/src/cs_image_system/base/models/credentials.py)):
+([credentials.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/credentials.py)):
 any key under it is refused at load, so from a loaded configuration that
 branch never runs. `preflight`, `state query` and every run report
 whether ADC exists as a `session:` line; they never read the value.
 
 **An AWS session as well, when the state is in S3.** The root's state
 location is `state_configuration` on the builder, else the runtime's,
-else the default backend. The fixture and the live tree keep
-the GCE roots on the S3 backend, so every `tofu init`, `plan`, `apply`
+else the default backend. The live tree keeps the GCE roots on the S3
+backend (the fixture binds them to its `gcs` backend), so there every
+`tofu init`, `plan`, `apply`
 and every `terraform_remote_state` read of a GCE root needs a live AWS
 session, and a session that lapses mid-run stops GCE work with GCP fully
 authenticated. Read the session's expiry before a long run.
@@ -621,7 +641,7 @@ authenticated. Read the session's expiry before a long run.
 no external address, so IAP is the only way in: the firewall rule for
 `tcp:22` from `35.235.240.0/20` and `roles/iap.tunnelResourceAccessor`
 for the operator's own Google user are operator wiring, listed in
-[OPERATIONS.md](../../docs/OPERATIONS.md) under "IAP sessions on GCE".
+[OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md) under "IAP sessions on GCE".
 The plugin depends on that wiring twice: the detach sequence's `unmount
 storage` step runs on the instance through the runtime's session, and an
 ephemeral instance's `verify instance` reads the serial console (no
@@ -669,7 +689,7 @@ Fields common to all five service names:
 | `is_default` | bool | `false` | the builder an item's `type: default` resolves to (read by the core) |
 | `runtime` | str | `default` | the `gcloud` runtime builder, by name or alias; the provider block, the zone, the network, the machine type and the IAP decision all come from it |
 | `executable` | str or null | `"tofu"` | an entry of `cfg/executables.yml` |
-| `required_plugins` | list | `[]` | terraform providers for `required_providers`; entries `{name, version, source, config}` where `name` and `version` are required by the model ([hashicorp_models.py](../hashicorp-utils/src/cs_image_system/hashicorp_utils/hashicorp_models.py)) and `config` is accepted, not read. Empty means one `google` provider from `hashicorp/google` with no version constraint. The `provider "google"` block is emitted whatever this lists |
+| `required_plugins` | list | `[]` | terraform providers for `required_providers`; entries `{name, version, source, config}` where `name` and `version` are required by the model ([hashicorp_models.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/hashicorp-utils/src/cs_image_system/hashicorp_utils/hashicorp_models.py)) and `config` is accepted, not read. Empty means one `google` provider from `hashicorp/google` with no version constraint. The `provider "google"` block is emitted whatever this lists |
 | `state_configuration` | str (foreign key to a state backend) | `default` | the root's state location; `default` inherits the runtime's, else the default backend |
 | `description`, `config`, `gitignore`, `tags` | | | accepted, not read by this package |
 
@@ -772,8 +792,8 @@ sequence runs. Meta-state read: `storage-state.yaml` (a storage recorded
 `archived` and declared `active` is a restore), the instance pins and
 launch records (the pinned build; the decommission whitelist) and the
 pending replacements. All of these are the core's, documented in
-[CONFIGURATION.md](../../docs/CONFIGURATION.md) and
-[OPERATIONS.md](../../docs/OPERATIONS.md).
+[CONFIGURATION.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/CONFIGURATION.md) and
+[OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md).
 
 ### Variations
 
@@ -876,7 +896,7 @@ pending replacements. All of these are the core's, documented in
   `pre_finalize_phase`/`post_finalize_phase` hooks run only in-process
   under `--no-dry-run`.
 - **Apply flag on vs off.** Off: the deferred sequence of
-  [OPERATIONS.md](../../docs/OPERATIONS.md#the-apply-gate) ends at
+  [OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md#the-apply-gate) ends at
   `gate-plan`, after this root's unmount steps and `-replace` targets.
   On: `apply-check --lifecycle <storage or instances> --root <B>
   --root-alias <runtime>` and `apply` follow; the ephemeral sequence, the
@@ -885,7 +905,7 @@ pending replacements. All of these are the core's, documented in
   passes the values it reads through `str()` into the collector and
   neither recognises nor opens an `ENC[age:...]` marker. How a marker
   travels from the tree to the executing root is the core's rule
-  ([OPERATIONS.md](../../docs/OPERATIONS.md), "Encrypted values").
+  ([OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md), "Encrypted values").
 
 ## What it tests and verifies
 
@@ -896,13 +916,13 @@ key, a non-integer `size`/`capacity_gb`, a missing GCS `bucket_name`, a
 configuration does not load, so `validate` and `run` exit 1 and
 `preflight` reports the load failure. The plugin adds no validator of its
 own; these are the base models' rules
-([model_config.py](../contract/src/cs_image_system/contract/model_config.py),
-[builder_model.py](../base/src/cs_image_system/base/models/builder_model.py)).
+([model_config.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/contract/src/cs_image_system/contract/model_config.py),
+[builder_model.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/builder_model.py)).
 
 **At `validate` (the core, through this plugin's hooks).**
-[validation_rules.py](../engine/src/cs_image_system/engine/validation_rules.py),
-[storage_state.py](../engine/src/cs_image_system/engine/storage_state.py) and
-[validate.py](../engine/src/cs_image_system/engine/commands/validate.py) ask
+[validation_rules.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/validation_rules.py),
+[storage_state.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/storage_state.py) and
+[validate.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/commands/validate.py) ask
 the builders:
 
 | Hook | Answer | What is refused |
@@ -1007,26 +1027,27 @@ the pin, the power state) are the runtime plugin's, not this one's.
 
 **Tests.** The package's own test,
 [tests/test_storage_variables.py](tests/test_storage_variables.py), pins
-the label merge only. The behaviour above is pinned by the repository's
-generation tests over a GCE overlay of the fixture:
-[test_gcp_runtime.py](../../tests/test_gcp_runtime.py) (the
+the label merge only. The behaviour above is pinned by generation tests
+over a GCE overlay of the fixture, the family's own in `tests/pipeline`
+and the system's shared suite:
+[test_gcp_runtime.py](../../tests/pipeline/test_gcp_runtime.py) (the
 roots, the module arguments, the launch parameters, a local `tofu
 validate` of the generated GCE roots when tofu is installed),
-[test_gcp_runtime.py](../../tests/test_gcp_runtime.py) (the device
+[test_gcp_runtime.py](../../tests/pipeline/test_gcp_runtime.py) (the device
 name and mount path agree, IAP bakes),
-[test_gce_cycle.py](../../tests/test_gce_cycle.py) (the wipe
+[test_gce_cycle.py](../../tests/pipeline/test_gce_cycle.py) (the wipe
 script, the storage destroy whitelist, the cycle overlays),
-[test_decommission.py](../../tests/test_decommission.py),
-[test_detach.py](../../tests/test_detach.py),
-[test_ephemeral.py](../../tests/test_ephemeral.py),
-[test_run_scoping.py](../../tests/test_run_scoping.py) and
-[test_state_locations.py](../../tests/test_state_locations.py).
+[test_decommission.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_decommission.py),
+[test_detach.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_detach.py),
+[test_ephemeral.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_ephemeral.py),
+[test_run_scoping.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_run_scoping.py) and
+[test_state_locations.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_state_locations.py).
 Nothing reaches GCP from the tests.
 
 ## When it fails
 
 Incidents that have happened, with their cause and fix, are recorded on
-[INCIDENTS.md](../../docs/INCIDENTS.md); what follows keeps each
+[INCIDENTS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/INCIDENTS.md); what follows keeps each
 failure's symptom, its meaning and what to do.
 
 Failures by symptom: what each means and what to do.
@@ -1173,14 +1194,15 @@ Failures the code raises:
 
 ## Related
 
-- [cs-image-system-tofu-roots](../tofu-roots/README.md#the-terraform-roots):
+- [cs-image-system-tofu-roots](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/tofu-roots/README.md#the-terraform-roots):
   the provider-neutral terraform roots these builders subclass, what the
   bases own, the full hook table and the version checker.
-- [cs-image-system-tf-ebs-instance-plugin](../tf-ebs-instance-plugin/README.md):
+- [cs-image-system-tf-ebs-instance-plugin](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/tf-ebs-instance-plugin/README.md):
   the AWS root on the same bases, with the launch parameters and the
   storage state machine described at length; not a dependency.
-- [cs-image-system-tf-s3-state-plugin](../tf-s3-state-plugin/README.md): the
-  state backend the fixture's GCP roots use.
+- [cs-image-system-tf-s3-state-plugin](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/tf-s3-state-plugin/README.md): the
+  state backend the live tree's GCP roots use (the fixture's use
+  [gcs-state-plugin](../gcs-state-plugin/README.md)).
 - [gcloud-runtime-plugin gcp_runtime_models.py](../gcloud-runtime-plugin/src/cs_image_system/gcloud_runtime/gcp_runtime_models.py)
   and [gcp_packer_source.py](../gcloud-runtime-plugin/src/cs_image_system/gcloud_runtime/gcp_packer_source.py):
   the runtime model this plugin reads and the `gce_name`/`gce_label` rules;
@@ -1188,9 +1210,9 @@ Failures the code raises:
   for `resolve_project` and `make_credentials`;
   [gcp_runtime_builders.py](../gcloud-runtime-plugin/src/cs_image_system/gcloud_runtime/gcp_runtime_builders.py)
   for `session_mechanism`, `verify_instance` and `query_instance_boot_image`.
-- [base launch_params.py](../base/src/cs_image_system/base/launch_params.py):
+- [base launch_params.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/launch_params.py):
   the launch script, including the `pd` and `filestore` mount forms.
 - [tests/test_storage_variables.py](tests/test_storage_variables.py): the
   unit test that pins the label merge.
-- [docs/DESIGN.md](../../docs/DESIGN.md) and
-  [docs/OPERATIONS.md](../../docs/OPERATIONS.md).
+- [docs/DESIGN.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/DESIGN.md) and
+  [docs/OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md).

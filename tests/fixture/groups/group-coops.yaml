@@ -1,0 +1,16 @@
+# The Google Cloud family's fixture: the one group, which owns the GCE image,
+# and so the tree's root group. The shared fixture's `coops` was an Okta group;
+# here it is a POSIX group of the core's posix-identity plugin, by the
+# operator's decision of 2026-11-19 (spec 005, research R7): the configured
+# Okta is not available on Google Cloud.
+groups:
+- name: coops
+  type: posix-local
+  gid: 3102
+  description: CO-Ops group
+  members:
+  - taylor_tango
+  - unity_uniform
+  admins:
+  - taylor_tango
+  is_root: true

@@ -1,0 +1,18 @@
+# The Google Cloud family's fixture: the two POSIX personas (synthetic, on example.invalid).
+# Taken from the repository's shared fixture (tests/fixtures/config) with its
+# names unchanged.
+users:
+- name: taylor_tango
+  type: posix-users
+  first_name: Taylor
+  last_name: Tango
+  uid: 3201
+  public_keys:
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFixtureTaylorTangoKeyOpensNothingAtAll00 taylor_tango-fixture
+- name: unity_uniform
+  type: posix-users
+  first_name: Unity
+  last_name: Uniform
+  uid: 3202
+  public_keys:
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFixtureUnityUniformKeyOpensNothingAtAll0 unity_uniform-fixture

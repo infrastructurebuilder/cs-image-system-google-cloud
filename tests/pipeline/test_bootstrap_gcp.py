@@ -21,13 +21,12 @@ from pathlib import Path
 from typing import Protocol, cast
 
 import pytest
-from harness import module_path, modules_inside
+from family import module_path, modules_inside
+from starter_support import EXAMPLES, RENDERED, _assigned, _starter_copy
 
 from cs_image_system.engine import bootstrap as bs
 from cs_image_system.engine.bootstrap.questions import Refused
 from cs_image_system.gcloud_runtime import bootstrap as gcp
-from tests.starter_support import RENDERED
-from tests.test_bootstrap import EXAMPLES, _assigned, _starter_copy
 
 PROJECT = "acme-proj"
 NUMBER = "424242424242"
@@ -100,18 +99,16 @@ FRESH = dict(number=True, pool=False, provider=False, read=False, write=False, b
 # ------------------------------------------------------------- the section itself
 
 def test_the_gcloud_plugin_contributes_the_section_and_the_tree_decides(tmp_path: Path):
-    assert [s.name for s in bs.discover()] == ["github", "aws", "docker", "gcp", "okta"]   # GitHub first, then the plugins' by name
+    assert [s.name for s in bs.discover()] == ["github", "gcp"]   # GitHub first (the core's), then the installed plugins' by name
     gce = bs.gather(_tree(tmp_path), gh=False)
     assert _section().wanted_default(gce) is True
-    aws_section = next(s for s in bs.discover() if s.name == "aws")
-    assert aws_section.wanted_default(gce) is False                           # a GCE-only tree does not want AWS
     other = tmp_path / "aws"
     shutil.copytree(RENDERED() / "standard-aws", other)
-    assert _section().wanted_default(bs.gather(other, git=False, gh=False)) is False
-    # so a quiet interview over a GCE tree asks GitHub and GCP and never refuses on an AWS question
+    assert _section().wanted_default(bs.gather(other, git=False, gh=False)) is False   # a tree with no GCE runtime
+    # so a quiet interview over a GCE tree asks GitHub and GCP
     out = bs.run_interview(bs.discover(), _facts(_tree(tmp_path / "again"), _project(None, **FRESH)), quiet=True,
-                           only=["github", "aws", "gcp"])                       # the starter's Okta placeholders aside
-    assert out["aws"] == {"wanted": False} and out["gcp"]["wanted"] and out["github"]["wanted"]
+                           only=["github", "gcp"])                              # the starter's Okta placeholders aside
+    assert out["gcp"]["wanted"] and out["github"]["wanted"]
 
 
 def test_placeholders_and_a_project_that_cannot_be_asked_are_refused_by_name(tmp_path: Path):
@@ -238,7 +235,7 @@ def test_a_shared_provider_that_does_not_name_this_repository_is_a_step_by_hand_
 
 @pytest.mark.skipif(shutil.which("tofu") is None, reason="tofu not installed")
 def test_the_root_validates_with_tofu(tmp_path: Path):
-    from tests.harness import private_plugin_cache
+    from family import private_plugin_cache
     root, out = _root(tmp_path, None, None, **FRESH)
     modules_inside(root)
     env = {**os.environ, "TF_PLUGIN_CACHE_DIR": str(private_plugin_cache(tmp_path, [out, module_path("bootstrap_gcp")]))}

@@ -1,0 +1,10 @@
+---
+state_backends:
+- name: gcs-east1
+  type: gcs
+  bucket: csis-sandbox-tfstate
+  prefix: statefiles/csia
+  is_default: true
+- name: local-dev
+  type: local
+  path: state

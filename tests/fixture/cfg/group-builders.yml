@@ -1,0 +1,9 @@
+---
+group_builders:
+- name: posix-local
+  type: posix
+  is_default: true
+user_builders:
+- name: posix-users
+  type: posix
+  is_default: true

@@ -4,7 +4,7 @@
 
 [project]
 name = "cs-image-system-gcs-state-plugin"
-version = "0.1.11"
+version = "0.2.0"
 description = "The GCS state backend plugin: a Google Cloud Storage bucket for every terraform root that names it"
 readme = "README.md"
 authors = [{ name = "Mykel Alvis", email = "mykelalvis@infrastructurebuilder.org" }]
@@ -19,10 +19,18 @@ dependencies = [
     "pydantic>=2.13",
 ]
 
+# what this package's own tests need beyond its dependencies
+[project.optional-dependencies]
+test = [
+    "pytest>=8.3",
+    "cs-image-system-hashicorp-utils>=0.2,<0.3",      # the collector its collision test drives
+    "cs-image-system-local-state-plugin>=0.1.11,<0.2",  # the core backend that test sets beside gcs
+]
+
 [project.urls]
-Repository = "https://github.com/infrastructurebuilder/cs-image-system-3"
+Repository = "https://github.com/infrastructurebuilder/cs-image-system-google-cloud"
 Documentation = "https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md"
-"Package README" = "https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/gcs-state-plugin/README.md"
+"Package README" = "https://github.com/infrastructurebuilder/cs-image-system-google-cloud/blob/develop/packages/gcs-state-plugin/README.md"
 
 [project.entry-points."cs_image_system.plugins.state"]
 gcs_state_plugin = "cs_image_system.gcs_state_plugin.main:initialize"

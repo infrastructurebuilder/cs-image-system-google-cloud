@@ -84,6 +84,34 @@ def stub_declared_networks(monkeypatch: Any, runtimes: list[dict[str, Any]]) -> 
                         lambda session_config, clients=None: (networks, "default", {}))
 
 
+def record_runtime_facts(root: Path, checked_at: str) -> Path:
+    """Write ``<root>/meta-state/runtime-facts.yaml`` for the tree under
+    ``root`` from its own ``cfg/*.yml``, as a real run's discovery would
+    have: every ``gcloud`` runtime's declared network (an unset or default
+    one recorded as ``default``, what :func:`network_map` answers as the
+    project's default) and its declared subnet ids, checked at
+    ``checked_at`` (the test kit's ``FIXED_CHECKED_AT``). An offline load
+    then adopts the networks the stub answers. The path is returned."""
+    from cs_image_system.contract.constants import OOPS_DEFAULTS
+    runtimes: dict[str, dict[str, Any]] = {}
+    for p in sorted((root / "cfg").glob("*.y*ml")):
+        doc = yaml.safe_load(p.read_text()) or {}
+        for r in (doc.get("runtime_builders") or []) if isinstance(doc, dict) else []:
+            if not isinstance(r, dict) or r.get("type") != "gcloud" or not r.get("name"):
+                continue
+            net = r.get("networking") or {}
+            network = net.get("network")
+            runtimes[str(r["name"])] = {
+                "network": "default" if network in OOPS_DEFAULTS else str(network),
+                "subnets": [str(s.get("subnet_id")) for s in net.get("subnets") or []],
+                "checked_at": checked_at,
+            }
+    path = root / "meta-state" / "runtime-facts.yaml"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(yaml.safe_dump({"runtimes": runtimes}, sort_keys=True, default_flow_style=False))
+    return path
+
+
 def stub(monkeypatch: Any, retags: list[tuple[str, dict[str, str]]] | None = None, *,
          config: Path | None = None) -> None:
     """Replace the Google Cloud runtime's calls to Google Cloud for the

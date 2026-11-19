@@ -18,16 +18,15 @@ from pathlib import Path
 
 import pytest
 import yaml
+from family import FixtureRun, command_lines, copy_config
 
 from cs_image_system.base.meta_ledgers import PINS
 from cs_image_system.gcloud_runtime.gcp_runtime_builders import GCPCloudBuilder
-from tests.harness import FixtureRun, command_lines, copy_config
 
 _REAL_GCE_RETAG = GCPCloudBuilder.retag_image     # captured before any harness stub replaces it
 
 GCE_BUILD = "imgfile-basic-dask-pckr-gce-ans-20260906-034343"
 GCE_ROOT = "tofu-gce/instance-generation"
-AWS_ROOT = "open-tofu/instance-generation"
 
 
 def _undeclare(root: Path, *names: str) -> None:
@@ -104,7 +103,6 @@ def test_launch_overlay_declares_the_instance_and_scopes_the_apply(prepared):
     assert ws[GCE_ROOT]["apply"] is True and ws[GCE_ROOT]["root"] == "tofu-gce"
     # the script names the overlay through the root reference, never an absolute path
     assert ws[GCE_ROOT]["overlays"] == ['"$CSIS_ROOT/overlays/gce-cycle-launch.yaml"']
-    assert ws[AWS_ROOT]["apply"] is False            # plans and gates only
     # --only none: the terraform roots alone, no bake surface at all
     assert not list((run.generated / "instance-image").rglob("*.pkr.hcl"))
     # the tree on disk was not touched
@@ -122,7 +120,6 @@ def test_decommission_overlay_destroys_the_recorded_instance_only(prepared):
     ws = _by_workspace((run.generated / "instance-image" / "run-instance-image.sh").read_text())
     assert "--allow-destroy module.instance_gce_test" in str(ws[GCE_ROOT]["gate"])
     assert ws[GCE_ROOT]["apply"] is True and ws[GCE_ROOT]["root"] == "tofu-gce"
-    assert ws[AWS_ROOT]["apply"] is False and "--allow-destroy" not in str(ws[AWS_ROOT]["gate"])
 
 
 def test_undeclare_flag_decommissions_like_the_overlay_form(prepared, tmp_path, monkeypatch):
@@ -145,7 +142,6 @@ def test_undeclare_flag_decommissions_like_the_overlay_form(prepared, tmp_path, 
         ws = _by_workspace((run.generated / "instance-image" / "run-instance-image.sh").read_text())
         assert "--allow-destroy module.instance_gce_test" in str(ws[GCE_ROOT]["gate"])
         assert ws[GCE_ROOT]["apply"] is True and ws[GCE_ROOT]["overlays"] == []   # nothing to re-read at apply
-        assert ws[AWS_ROOT]["apply"] is False
     finally:
         run.restore_cwd()
 
@@ -164,7 +160,6 @@ def test_storage_teardown_overlay_tombstones_the_cycle_storages(prepared):
     run = make_run("gce-cycle-storage-teardown.yaml")
     states = {s.get_name(): s.state for s in run.ctx.storages}
     assert states["gce_data"] == "destroyed" and states["gce_bucket"] == "destroyed"
-    assert states["mnt_data"] == "active"
     # the recorded state is active (a real cycle created them): destroyed is a transition
     ms = run.ctx.meta_state
     for name in ("gce_data", "gce_bucket"):
@@ -182,7 +177,6 @@ def test_storage_teardown_overlay_tombstones_the_cycle_storages(prepared):
     ws = _by_workspace(script)
     applied = {e["root"] for e in ws.values() if e["apply"]}
     assert applied == {"gcp-pd", "gcp-gcs"}
-    assert all("--allow-destroy" not in str(e["gate"]) for w, e in ws.items() if w.startswith("aws-"))
 
 
 def test_overlays_are_validated_up_front(tmp_path: Path):
@@ -339,18 +333,18 @@ def test_dispose_refuses_unrecorded_and_in_use_builds(tmp_path, monkeypatch, stu
 
 
 def test_dispose_refuses_a_runtime_that_cannot_dispose(tmp_path, monkeypatch, stub_gce_delete):
-    """A runtime without the hook refuses (AWS implements it, so the base
-    behaviour is stubbed back for this proof)."""
-    from cs_image_system.aws_runtime.aws_runtime_builders import AwsCloudBuilder
+    """A runtime without the hook refuses (Google Cloud implements it, so
+    the base behaviour is stubbed back for this proof)."""
     from cs_image_system.base.basic.builder_base_runtime import RuntimeBuilderBase
     from cs_image_system.engine.commands.dispose import dispose_images
-    monkeypatch.setattr(AwsCloudBuilder, "dispose_image", RuntimeBuilderBase.dispose_image)
+    from cs_image_system.gcloud_runtime.gcp_runtime_builders import GCPCloudBuilder
+    monkeypatch.setattr(GCPCloudBuilder, "dispose_image", RuntimeBuilderBase.dispose_image)
     root = copy_config(tmp_path)
     _seed_gce_chain(root)
     run = FixtureRun(tmp_path, monkeypatch, config_root=root, dry_run=False)
     try:
         with pytest.raises(NotImplementedError, match="cannot dispose"):
-            dispose_images(run.ctx, ["ami-0829ccceee6db194e"])
+            dispose_images(run.ctx, [GCE_BUILD])
         assert len(run.ctx.meta_state.builds()) == 3                       # nothing recorded
     finally:
         run.restore_cwd()
@@ -462,20 +456,22 @@ def test_gce_retag_merges_lineage_truth_into_the_image_labels(tmp_path, monkeypa
 
 # ------------------------------------------------------ overlay undeclare
 
-def test_an_overlay_can_undeclare_a_tree_entry_for_one_invocation(prepared, tmp_path):
+def test_an_overlay_can_undeclare_a_tree_entry_for_one_invocation(tmp_path, monkeypatch):
     """`{name: X, undeclare: true}` removes the tree's entry for this run only:
     a launched instance decommissions through the gate exactly as if its
     entry had left the YAML; the tree on disk is untouched."""
-    root, make_run = prepared
-    _seed_launched(root, "test2", "ami-dask-1", "aws-east2-runtime")
-    overlay = tmp_path / "undeclare-test2.yaml"
-    overlay.write_text("instances:\n  - name: test2\n    undeclare: true\nconfig:\n  apply_instances: [aws-east2-runtime]\n")
-    run = make_run(str(overlay))
-    assert not any(i.get_name() == "test2" for i in run.ctx.instances)
-    assert any(i.get_name() == "test" for i in run.ctx.instances)          # the others stay
-    summary = run.run(["instance-image"], apply=True, only=["none"])
-    assert summary.ok, summary.error
-    ws = _by_workspace((run.generated / "instance-image" / "run-instance-image.sh").read_text())
-    assert "--allow-destroy module.instance_test2" in str(ws[AWS_ROOT]["gate"])
-    live = yaml.safe_load((root / "instances" / "instances.yaml").read_text())
-    assert any(i["name"] == "test2" for i in live["instances"])            # the tree still declares it
+    root = copy_config(tmp_path)
+    _seed_launched(root, "gce-test", GCE_BUILD, "gcloud-east1")
+    overlay = tmp_path / "undeclare-gce-test.yaml"
+    overlay.write_text("instances:\n  - name: gce-test\n    undeclare: true\nconfig:\n  apply_instances: [gcloud-east1]\n")
+    run = FixtureRun(tmp_path, monkeypatch, config_root=root, overlays=[overlay])
+    try:
+        assert not any(i.get_name() == "gce-test" for i in run.ctx.instances)
+        summary = run.run(["instance-image"], apply=True, only=["none"])
+        assert summary.ok, summary.error
+        ws = _by_workspace((run.generated / "instance-image" / "run-instance-image.sh").read_text())
+        assert "--allow-destroy module.instance_gce_test" in str(ws[GCE_ROOT]["gate"])
+        live = yaml.safe_load((root / "instances" / "instances.yaml").read_text())
+        assert any(i["name"] == "gce-test" for i in live["instances"])     # the tree still declares it
+    finally:
+        run.restore_cwd()

@@ -4,7 +4,7 @@
 
 [project]
 name = "cs-image-system-gcloud-runtime-plugin"
-version = "0.1.11"
+version = "0.2.0"
 description = "The gcloud runtime type: Google Compute Engine as a place where images bake and instances run"
 readme = "README.md"
 authors = [{ name = "Mykel Alvis", email = "mykelalvis@infrastructurebuilder.org" }]
@@ -22,13 +22,19 @@ dependencies = [
     "google-auth>=2.55",
     "python-hcl2>=8.1",
     "pydantic>=2.13",
-    "PyYAML>=6.0",                       # testing.py reads a fixture's runtimes
+    "PyYAML>=6.0.2",                     # testing.py reads a fixture's runtimes (6.0.2: the first with Python 3.13 wheels)
+]
+
+# what this package's own tests need beyond its dependencies
+[project.optional-dependencies]
+test = [
+    "pytest>=8.3",
 ]
 
 [project.urls]
-Repository = "https://github.com/infrastructurebuilder/cs-image-system-3"
+Repository = "https://github.com/infrastructurebuilder/cs-image-system-google-cloud"
 Documentation = "https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md"
-"Package README" = "https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/gcloud-runtime-plugin/README.md"
+"Package README" = "https://github.com/infrastructurebuilder/cs-image-system-google-cloud/blob/develop/packages/gcloud-runtime-plugin/README.md"
 
 [project.entry-points."cs_image_system.plugins.runtime"]
 gcloud = "cs_image_system.gcloud_runtime.main:initialize"

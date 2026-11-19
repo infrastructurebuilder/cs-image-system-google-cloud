@@ -14,6 +14,19 @@ states and instance identities), relabels released images, starts and stops
 instances for bounded tasks, and deletes images by name. Credentials are
 Application Default Credentials; the model declares none.
 
+## Installing
+
+This package is one of the Google Cloud family's three distributions,
+which release together under one number. An operator installs the family
+through the system's `gcloud` extra:
+
+```sh
+uv tool install 'cs-image-system[gcloud]'
+```
+
+The system's operations guide says which extra carries which provider:
+[OPERATIONS.md, "Installing a release"](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md#installing-a-release).
+
 ## What it registers
 
 The entry point is declared in [pyproject.toml](pyproject.toml):
@@ -40,7 +53,7 @@ fixture's `gcloud-east1` also answers to `gcp`, `google` and `us-east1`).
 
 The version checker is looked up by an executable's `name` first and its
 `type` second, so the fixture's `- name: gcloud` executable in
-[executables.yml](../../tests/fixtures/config/cfg/executables.yml) is parsed
+[executables.yml](../../tests/fixture/cfg/executables.yml) is parsed
 by it: the checker runs `gcloud --version` and matches
 `Google Cloud SDK ([\d\.]+)` on the first line of the output, so the version
 checked is the SDK's (`585.0.0`), not the `core` component's date-shaped
@@ -85,13 +98,13 @@ binding is one member added. See OPERATIONS.md, "The bootstrap".
 ### `GCPCloudNetworkingModel`
 
 Extends `CloudNetworkingConfig` in
-[cloud_builder.py](../base/src/cs_image_system/base/models/cloud_builder.py),
+[cloud_builder.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/cloud_builder.py),
 which is `RuntimeNetworkingModel` in
-[runtime.py](../base/src/cs_image_system/base/models/runtime.py) under
+[runtime.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/runtime.py) under
 another name.
 
 The full field table is
-[CONFIGURATION 4.5](../../docs/CONFIGURATION.md#45-networking). What is
+[CONFIGURATION 4.5](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/CONFIGURATION.md#45-networking). What is
 specific to this runtime:
 
 - `network_tags` (the one field it adds): GCE network tags. Firewall
@@ -117,15 +130,16 @@ here: `security_group_ids` and the like are not fields and are rejected.
 ### `GCPCloudBuilderModel`
 
 Extends `CloudBuilderModel` in
-[cloud_builder.py](../base/src/cs_image_system/base/models/cloud_builder.py),
+[cloud_builder.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/cloud_builder.py),
 which extends `RuntimeBuilderModel` in
-[runtime.py](../base/src/cs_image_system/base/models/runtime.py), which
+[runtime.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/runtime.py), which
 extends `BuilderModel` and `NameTyped` in
-[builder_model.py](../base/src/cs_image_system/base/models/builder_model.py).
+[builder_model.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/builder_model.py).
 
-The full field table is [CONFIGURATION 4.4](../../docs/CONFIGURATION.md#44-gcloud)
+The full field table is the family's
+[CONFIGURATION.md, "The `gcloud` runtime"](../../docs/CONFIGURATION.md#the-gcloud-runtime)
 (the fields every runtime shares are in
-[CONFIGURATION 4.2](../../docs/CONFIGURATION.md#42-fields-common-to-every-runtime));
+[CONFIGURATION 4.2](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/CONFIGURATION.md#42-fields-common-to-every-runtime));
 the plugin's own [Configuration reference](#configuration-reference)
 below lists every field with its type and default. The keys this runtime
 adds, and the rules it alone enforces:
@@ -153,7 +167,7 @@ adds, and the rules it alone enforces:
   backend (`validate` resolves the bindings the same way).
 - `ssh_username`: the bake's SSH user for images here that name none more
   specifically: step 4 of the bake-user order
-  ([CONFIGURATION 5.1.1](../../docs/CONFIGURATION.md#511-the-bake-ssh-user)).
+  ([CONFIGURATION 5.1.1](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/CONFIGURATION.md#511-the-bake-ssh-user)).
   An entry's own user wins over it.
 - `session_mechanism`: `iap` is the only value. The model accepts any
   string; the builder's `session_mechanism()` raises on anything else the
@@ -213,9 +227,9 @@ that no `project_id` is declared on the runtime.
 ## The builder
 
 `GCPCloudBuilder` extends `CloudBuilderBase` in
-[builder_base_cloud.py](../base/src/cs_image_system/base/basic/builder_base_cloud.py),
+[builder_base_cloud.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/basic/builder_base_cloud.py),
 an empty specialisation of `RuntimeBuilderBase` in
-[builder_base_runtime.py](../base/src/cs_image_system/base/basic/builder_base_runtime.py).
+[builder_base_runtime.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/basic/builder_base_runtime.py).
 The runtime builder writes no files of its own: `generate_items_during`
 defers to the base and returns nothing. Everything it contributes reaches
 `generated/` through the image, instance and release builders that call its
@@ -264,7 +278,7 @@ cannot invent a first letter, and GCE requires a label KEY to start with a
 lowercase letter. A tag key such as `2024`, `-env` or `_x` therefore
 becomes a label key GCE refuses. The runtime says so through
 `label_key_problem(key)`, and `validate` runs `check_label_keys` in
-[validate.py](../engine/src/cs_image_system/engine/commands/validate.py) over
+[validate.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/commands/validate.py) over
 every declared tag key that becomes a label here: an image's tags for each
 runtime it bakes on, an instance's tags on its runtime, and a storage's
 tags on its storage builder's runtime. A key GCE cannot take is refused,
@@ -277,7 +291,7 @@ naming who declared it:
 The key is never renamed silently: the operator renames it in the YAML.
 Refusing the key at `validate` keeps GCE from refusing it at apply. A tree
 validated on an older release may still carry such a key;
-[the stage index](../../docs/CHANGES.md#s63) places the rule. Label
+[the stage index](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/CHANGES.md#s63) places the rule. Label
 VALUES are not checked. The runtime's own `tags` are not checked because
 nothing on this runtime reads them.
 
@@ -317,10 +331,10 @@ firewall rule targets logs a warning.
 
 `query_provider_image()` takes one OS-builder runtime entry
 (`OSBuilderBaseImageBuilderSubconfig` in
-[os_builder_runtime_config.py](../base/src/cs_image_system/base/models/os_builder_runtime_config.py))
+[os_builder_runtime_config.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/os_builder_runtime_config.py))
 and asks it for its effective query, `entry.image_query()`: an
 `ImageQuery` in the SYSTEM's vocabulary
-([contract/image.py](../contract/src/cs_image_system/contract/image.py)).
+([contract/image.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/contract/src/cs_image_system/contract/image.py)).
 That query is the image-source catalog's `gcloud` block for
 the OS builder's family (the release's layer under the tree's
 `cfg/image-sources*.yml`), with the OS builder's own `query` landing on it
@@ -359,7 +373,7 @@ tree declares the one it bakes (CONFIGURATION 5a.1).
 
 What `translate_image_query()` does with each key of the system's
 vocabulary (`supported_query_keys()` is the set of rows not marked
-refused; [tests/test_docs_image_sources.py](../../tests/test_docs_image_sources.py)
+refused; [tests/pipeline/test_docs_image_sources_gce.py](../../tests/pipeline/test_docs_image_sources_gce.py)
 holds this table to it). The answer is `{"projects": [...], "terms":
 {<image field>: value}, "filter": "<the list() expression>",
 "most_recent": bool}`.
@@ -435,7 +449,7 @@ metadata SSH keys are provisioned at first boot.
 `query_instance_identity`, `inventory`, `serial_console`, `retag_image`,
 `dispose_image`, `start_instance` and `stop_instance` use `compute_v1`
 clients built from the session config. The state query in
-[state_query.py](../engine/src/cs_image_system/engine/state_query.py) reads
+[state_query.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/state_query.py) reads
 `query_images` to classify `missing`, `foreign` and `changed` images
 (asking for every recorded series and every declared OS builder and image,
 so an image labelled with a series the tree neither records nor declares
@@ -453,7 +467,7 @@ reports what is left.
 ### Retention and the GCE cycle
 
 The closing `retention` lifecycle in
-[retention.py](../engine/src/cs_image_system/engine/retention.py) runs
+[retention.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/retention.py) runs
 `dispose image --retention` at execution time. For each series on this
 runtime the number of builds kept is, in order: `0` when the runtime is
 `ephemeral`, the image's `retention.keep`, the runtime's `retention_keep`,
@@ -484,9 +498,9 @@ retention or an explicit `dispose image` removes them.
 ## Emission
 
 The plugin's output is visible in the golden emission under
-[tests/fixtures/golden/generated](../../tests/fixtures/golden/generated).
+[tests/golden/generated](../../tests/golden/generated).
 
-- [pckr-gce-ans-image-generation-source-basic-rh-10-block-000.pkr.hcl](../../tests/fixtures/golden/generated/base-image/pckr-gce-ans/image-generation/block-000/pckr-gce-ans-image-generation-source-basic-rh-10-block-000.pkr.hcl):
+- [pckr-gce-ans-image-generation-source-basic-rh-10-block-000.pkr.hcl](../../tests/golden/generated/base-image/pckr-gce-ans/image-generation/block-000/pckr-gce-ans-image-generation-source-basic-rh-10-block-000.pkr.hcl):
   the `source "googlecompute"` block written by `googlecompute_source()`:
   `project_id`, `zone`, `source_image` and `source_image_project_id` (a
   resolved vendor image and its project), `image_name` (`gce_name` of the
@@ -500,25 +514,25 @@ The plugin's output is visible in the golden emission under
   `subnetwork` (the default subnet). `network` is emitted only when it
   resolves to a non-default name, and `tags` only when `network_tags` are
   declared.
-- [pckr-gce-ans-image-generation-block-000-build.pkr.hcl](../../tests/fixtures/golden/generated/base-image/pckr-gce-ans/image-generation/block-000/pckr-gce-ans-image-generation-block-000-build.pkr.hcl):
+- [pckr-gce-ans-image-generation-block-000-build.pkr.hcl](../../tests/golden/generated/base-image/pckr-gce-ans/image-generation/block-000/pckr-gce-ans-image-generation-block-000-build.pkr.hcl):
   the `# debug session mechanism (iap)` shell provisioner
   (`session_agent_commands`), the `# verify: guest agent baked for IAP
   sessions` lines inside the in-bake verification (`session_verify_commands`),
   and the closing `# runtime bake finalization (gcloud-east1)` provisioner
   (`bake_finalize_commands`). The `googlecompute` entry in the neighbouring
   `-plugins.pkr.hcl` comes from the image builder's `required_plugins`.
-- [tofu-gce-instance-generation.tf](../../tests/fixtures/golden/generated/instance-image/tofu-gce/instance-generation/tofu-gce-instance-generation.tf)
+- [tofu-gce-instance-generation.tf](../../tests/golden/generated/instance-image/tofu-gce/instance-generation/tofu-gce-instance-generation.tf)
   and
-  [tofu-gce-instance-generation-instance-gce_test.tf](../../tests/fixtures/golden/generated/instance-image/tofu-gce/instance-generation/tofu-gce-instance-generation-instance-gce_test.tf):
+  [tofu-gce-instance-generation-instance-gce_test.tf](../../tests/golden/generated/instance-image/tofu-gce/instance-generation/tofu-gce-instance-generation-instance-gce_test.tf):
   written by the GCE instance plugin from this model. `provider "google" {
   project, region, zone, alias }`; the instance module's `machine_type`
   (the runtime default), `zone`, `subnetwork` (the default subnet),
   `image_family` (the series), `public_ip = false` under `iap` and, when
-  declared, `network_tags`. The `.tfbackend.hcl` beside them is an S3
-  backend written by the state-backend plugin; GCE roots keep their state
-  there.
+  declared, `network_tags`. The `.tfbackend.hcl` beside them is a `gcs`
+  backend written by the state-backend plugin; the fixture's GCE roots
+  keep their state there.
 - Runtime facts: `cs-image-system runtime describe gcloud-east1`
-  ([runtime_facts.py](../engine/src/cs_image_system/engine/commands/runtime_facts.py))
+  ([runtime_facts.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/commands/runtime_facts.py))
   reports `runtime`, `type`, `project_id`, `zone`, `region`,
   `default_machine_type`, `ephemeral`, `retention_keep`, the `images`,
   `storages`, `instances` and `ephemeral_instances` declared on it, the
@@ -529,7 +543,8 @@ The plugin's output is visible in the golden emission under
 ## Example configuration
 
 From
-[tests/fixtures/config/cfg/runtime-builders.yml](../../tests/fixtures/config/cfg/runtime-builders.yml):
+[tests/fixture/cfg/runtime-builders.yml](../../tests/fixture/cfg/runtime-builders.yml)
+(the comments are this README's):
 
 ```yaml
 runtime_builders:
@@ -565,6 +580,7 @@ runtime_builders:
           subnet_id: projects/csis-sandbox/regions/us-east1/subnetworks/default
           is_default: true
           public: true
+    is_default: true
 ```
 
 ## Prerequisites and integration
@@ -588,7 +604,7 @@ and the Google auth library's default chain applies, in its order:
 `~/.config/gcloud/application_default_credentials.json` (written by `gcloud
 auth application-default login`), else the metadata server of an attached
 service account. The operator's form, from
-[docs/OPERATIONS.md](../../docs/OPERATIONS.md) ("Credentials and sessions"):
+[docs/OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md) ("Credentials and sessions"):
 
 ```sh
 gcloud auth application-default login --impersonate-service-account=csis-runner@<project>.iam.gserviceaccount.com
@@ -675,13 +691,15 @@ validate their networking at the same load, so a GCE lifecycle, `empty
 --runtime gcloud-east1` and every configuration load need the AWS
 profile's session too (an expired SSO session stops GCE work even with
 GCP fully authenticated). See
-[docs/OPERATIONS.md](../../docs/OPERATIONS.md) for the profile.
+[docs/OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md) for the profile.
 
 **Python dependencies**, from [pyproject.toml](pyproject.toml):
 `google-cloud-compute>=1.49`, `google-api-core>=2.31`, `google-auth>=2.55`,
-`python-hcl2>=8.1`, `pydantic>=2.13`, and the system's own
+`python-hcl2>=8.1`, `pydantic>=2.13`, `PyYAML>=6.0.2` (the test stubs
+read a fixture's runtimes), and the system's own
 `cs-image-system-contract`, `cs-image-system-base` and
-`cs-image-system-hashicorp-utils`, each pinned as [WRITING_A_PROVIDER.md](../../docs/WRITING_A_PROVIDER.md#how-it-depends-on-the-sdk) describes: the contract by the range of its series, the SDK's libraries at their own line's version. Python 3.13 or
+`cs-image-system-hashicorp-utils`, each by the range of its compatible
+series, as [WRITING_A_PROVIDER.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/WRITING_A_PROVIDER.md#how-it-depends-on-the-sdk) describes. Python 3.13 or
 later.
 
 Environment variables the plugin or its checks read: `GOOGLE_APPLICATION_CREDENTIALS`
@@ -695,8 +713,9 @@ but empty: those are the prefixes this plugin declares through
 
 The YAML this plugin owns is one entry of `runtime_builders:` in
 `cfg/runtime-builders.yml` with `type: gcloud`; the manual's section is
-[docs/CONFIGURATION.md](../../docs/CONFIGURATION.md) 4.4. Every field the
-plugin's model accepts, and who reads it:
+the family's
+[docs/CONFIGURATION.md, "The `gcloud` runtime"](../../docs/CONFIGURATION.md#the-gcloud-runtime).
+Every field the plugin's model accepts, and who reads it:
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
@@ -902,7 +921,10 @@ absent, and a warning when no project can be resolved. The verdict lands
 in the log; the discovered `network_map`, `default_network` and
 `all_firewall_rules` stay on the model for the emitters. The test suite
 stubs `get_network_map_and_default_network` with the fixture's own subnet
-ids (see `tests/harness.py`), so no test reaches the API.
+ids (see [testing.py](src/cs_image_system/gcloud_runtime/testing.py),
+which the family's harness
+[tests/pipeline/family.py](../../tests/pipeline/family.py) calls), so no
+test reaches the API.
 
 **At `validate`.** The `gcloud` executable's binary exists and its SDK
 version satisfies the declared requirement (one INFO line names every
@@ -921,7 +943,7 @@ object, and `validate` exits 1.
 **At generation.** `session_mechanism()` again (the packer provisioners,
 the instance builder, the launch record). The packer source is emitted
 with the sanitised names; the golden emission under
-`tests/fixtures/golden` pins its exact shape, and `just test` fails on
+`tests/golden` pins its exact shape, and `just test` fails on
 any drift of it. `test_gcp_runtime.py` asserts the emitted commands: the
 finalize provisioner is the last one of every GCE bake, IAP runtimes emit
 `use_iap` and the tunnel wait and non-IAP ones do not, the disk size comes
@@ -987,7 +1009,7 @@ cannot answer exits 2.
 `deleted=True|False` per build in the log (`False` when GCE already had no
 such image); the lineage record is dropped either way.
 
-`tests/test_bootstrap_gcp.py` holds the bootstrap's GCP section: the
+`tests/pipeline/test_bootstrap_gcp.py` holds the bootstrap's GCP section: the
 entry point and the tree-derived gates (a GCE-only tree's quiet interview
 asks nothing of AWS), placeholders and an unaskable project refused by
 name, a fresh project getting the guide's pool, provider and accounts, an
@@ -999,7 +1021,7 @@ single-member grants only, and a real `tofu validate`.
 ## When it fails
 
 Incidents that have happened, with their cause and fix, are recorded on
-[INCIDENTS.md](../../docs/INCIDENTS.md); what follows keeps each
+[INCIDENTS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/INCIDENTS.md); what follows keeps each
 failure's symptom, its meaning and what to do.
 
 Failures by symptom: what each means and what to do.
@@ -1235,11 +1257,11 @@ Failures the code raises, by where they surface:
 
 ## Related
 
-- [aws-runtime-plugin](../aws-runtime-plugin/README.md): the other runtime type, with the same hook surface on EC2.
-- [default-os-plugin](../default-os-plugin/README.md): the OS builders whose runtime entries this plugin resolves to GCE images.
+- [aws-runtime-plugin](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/aws-runtime-plugin/README.md): the other runtime type, with the same hook surface on EC2.
+- [default-os-plugin](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/default-os-plugin/README.md): the OS builders whose runtime entries this plugin resolves to GCE images.
 - [tf-gcp-plugin](../tf-gcp-plugin/README.md): the GCE instance and storage roots that read this model.
-- [dummy-plugin](../dummy-plugin/README.md): the extension template.
-- Base classes: [runtime.py](../base/src/cs_image_system/base/models/runtime.py), [cloud_builder.py](../base/src/cs_image_system/base/models/cloud_builder.py), [credentials.py](../base/src/cs_image_system/base/models/credentials.py), [provider_specific_image.py](../base/src/cs_image_system/base/models/provider_specific_image.py), [builder_base_runtime.py](../base/src/cs_image_system/base/basic/builder_base_runtime.py), [abstract_version_checker.py](../base/src/cs_image_system/base/basic/abstract_version_checker.py), [power_state.py](../base/src/cs_image_system/base/power_state.py).
-- Consumers of the hooks: [state_query.py](../engine/src/cs_image_system/engine/state_query.py), [retention.py](../engine/src/cs_image_system/engine/retention.py), [dispose.py](../engine/src/cs_image_system/engine/commands/dispose.py), [verify_instance.py](../base/src/cs_image_system/base/commands/verify_instance.py), [runtime_facts.py](../engine/src/cs_image_system/engine/commands/runtime_facts.py), [relabel.py](../engine/src/cs_image_system/engine/commands/relabel.py), [provider_aliases.py](../engine/src/cs_image_system/engine/provider_aliases.py), [generations.py](../base/src/cs_image_system/base/generations.py), [validate.py](../engine/src/cs_image_system/engine/commands/validate.py).
-- [docs/OPERATIONS.md](../../docs/OPERATIONS.md) for the credential contract and the operator's cycles; [docs/DESIGN.md](../../docs/DESIGN.md) for the design; [docs/PLUGINS.md](../../docs/PLUGINS.md) for the package index.
-- [The configuration reference](../../docs/CONFIGURATION.md) -- every field of the YAML this plugin reads, with an example.
+- [dummy-plugin](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/dummy-plugin/README.md): the extension template.
+- Base classes: [runtime.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/runtime.py), [cloud_builder.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/cloud_builder.py), [credentials.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/credentials.py), [provider_specific_image.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/provider_specific_image.py), [builder_base_runtime.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/basic/builder_base_runtime.py), [abstract_version_checker.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/basic/abstract_version_checker.py), [power_state.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/power_state.py).
+- Consumers of the hooks: [state_query.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/state_query.py), [retention.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/retention.py), [dispose.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/commands/dispose.py), [verify_instance.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/commands/verify_instance.py), [runtime_facts.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/commands/runtime_facts.py), [relabel.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/commands/relabel.py), [provider_aliases.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/provider_aliases.py), [generations.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/generations.py), [validate.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/commands/validate.py).
+- [docs/OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md) for the credential contract and the operator's cycles; [docs/DESIGN.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/DESIGN.md) for the design; [docs/PLUGINS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/PLUGINS.md) for the package index.
+- [The configuration reference](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/CONFIGURATION.md) -- every field of the YAML this plugin reads, with an example; the `gcloud` runtime's own fields are in the family's [docs/CONFIGURATION.md](../../docs/CONFIGURATION.md#the-gcloud-runtime).

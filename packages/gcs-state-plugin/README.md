@@ -9,9 +9,23 @@ runs no commands of its own: a root that binds to it gets an empty
 its state get a `terraform_remote_state` data source with the same settings.
 
 Declaring the type binds nothing. The standing decision keeps every live
-root -- the GCE roots included -- on the S3 backend; the fixture declares a
-`gcs` backend that no root binds to, so the type loads and renders, and the
-golden does not move.
+root -- the GCE roots included -- on the S3 backend; the family's fixture
+declares a `gcs` backend as its default and binds its GCE roots to it, so
+the type loads, renders and is bound, and the golden carries what a bound
+root emits.
+
+## Installing
+
+This package is one of the Google Cloud family's three distributions,
+which release together under one number. An operator installs the family
+through the system's `gcloud` extra:
+
+```sh
+uv tool install 'cs-image-system[gcloud]'
+```
+
+The system's operations guide says which extra carries which provider:
+[OPERATIONS.md, "Installing a release"](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md#installing-a-release).
 
 ## What it registers
 
@@ -38,9 +52,9 @@ imports.
 `GcsStateBuilderModel` in
 [gcs_state_models.py](src/cs_image_system/gcs_state_plugin/gcs_state_models.py)
 extends `StateBuilderModel`
-([state_builder.py](../base/src/cs_image_system/base/models/state_builder.py)),
+([state_builder.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/state_builder.py)),
 which adds nothing over `BuilderModel`
-([builder_model.py](../base/src/cs_image_system/base/models/builder_model.py))
+([builder_model.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/base/src/cs_image_system/base/models/builder_model.py))
 except the classification. A state backend has no `runtime` field. Every
 field, with its type and default, is in the configuration reference below.
 `GcsStateBuilder` in
@@ -82,8 +96,8 @@ every root directly under the bucket (`gcs://<bucket>/<root>/default.tfstate`).
 
 ## Example configuration
 
-[`cfg/state-gcm.yml`](../../tests/fixtures/config/cfg/state-gcm.yml) in the
-fixture, declared and bound to nothing:
+[`cfg/state-backends.yml`](../../tests/fixture/cfg/state-backends.yml) in the
+fixture, its `gcs` entry, declared as the default backend:
 
 ```yaml
 ---
@@ -92,26 +106,27 @@ state_backends:
     type: gcs
     bucket: csis-sandbox-tfstate
     prefix: statefiles/csia
+    is_default: true
 ```
 
 The live configuration carries the same file with every line commented out:
 a placeholder for the day the GCE roots move, which is a decision, not a
 declaration. A file of comments loads as no declaration at all
-([tests/test_state_locations.py](../../tests/test_state_locations.py)
+([tests/pipeline/test_state_locations_gce.py](../../tests/pipeline/test_state_locations_gce.py)
 proves both shapes).
 
-A root would bind with `state_configuration: gcs-east1` on the builder
+A root binds with `state_configuration: gcs-east1` on the builder
 (or on its runtime, so that everything on that runtime keeps its state
-there); no fixture or live root does.
+there); the fixture's GCE builders name it, and no live root does.
 
 ## Prerequisites and integration
 
 Everything below is what a root BOUND to a `gcs` backend needs; a declared
-and unbound backend (the fixture, the live tree) needs nothing beyond the
-core, and a dry run never reaches the bucket.
+and unbound backend needs nothing beyond the core, and a dry run never
+reaches the bucket.
 
 - **The core, and the gate.** `cs-image-system-contract` and
-  `cs-image-system-base`, each pinned as [WRITING_A_PROVIDER.md](../../docs/WRITING_A_PROVIDER.md#how-it-depends-on-the-sdk) describes: the contract by the range of its series, the SDK's libraries at their own line's version (the package's declared
+  `cs-image-system-base`, each pinned as [WRITING_A_PROVIDER.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/WRITING_A_PROVIDER.md#how-it-depends-on-the-sdk) describes: each by the range of its compatible series (the package's declared
   dependencies), with `cs-image-system-hashicorp-utils` installed beside
   them for the collector. The whole state-backend mechanism is gated by
   `config.use_state_backends` in `cfg/_config.yml`: when it is false or
@@ -137,7 +152,7 @@ core, and a dry run never reaches the bucket.
   `GOOGLE_*` backend variables in the environment of whoever runs
   `init`/`plan`/`apply`). The live convention for GCE is ADC obtained by
   `gcloud auth application-default login --impersonate-service-account=csis-runner@<project>.iam.gserviceaccount.com`
-  ([docs/OPERATIONS.md](../../docs/OPERATIONS.md), "Credentials
+  ([docs/OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md), "Credentials
   contract"). `preflight`, `state query` and every run report whether ADC
   exist (`GOOGLE_APPLICATION_CREDENTIALS`, else
   `~/.config/gcloud/application_default_credentials.json`) as one
@@ -176,7 +191,7 @@ core, and a dry run never reaches the bucket.
 ## Configuration reference
 
 An entry under `state_backends:` in any `cfg/state-*.yml` (the fixture's
-is `cfg/state-gcm.yml`) with `type: gcs`. Unknown keys are refused at load
+is `cfg/state-backends.yml`) with `type: gcs`. Unknown keys are refused at load
 by pydantic (naming the key); a `parameters:` key is refused with a message
 naming `variables:`. Field names are exact: `type` in YAML is the model's
 `type_`.
@@ -194,7 +209,7 @@ naming `variables:`. Field names are exact: `type` in YAML is the model's
 | `impersonate_service_account` | str or null | null | the service account tofu impersonates; written into the backend file and every consumer's data source when set |
 | `encryption_key` | str or null | null | a customer-supplied encryption key; written into the backend file (never a data source) when set -- in clear when declared in clear, as its `ENC[age:...]` ciphertext when declared encrypted (see Variations) |
 | `kms_encryption_key` | str or null | null | a Cloud KMS key name; written into the backend file only, when set |
-| `executable` | str or null | null | the `cfg/executables.yml` entry the tofu for the roots on this backend comes from. Unset: nothing is checked on the backend's behalf. Declared: `validate` and every run refuse a name that is not an entry of `cfg/executables.yml` (`check_state_backend_executables` in [validate.py](../engine/src/cs_image_system/engine/commands/validate.py)), and the entry is version-checked like every executables entry. This plugin still runs no commands under it |
+| `executable` | str or null | null | the `cfg/executables.yml` entry the tofu for the roots on this backend comes from. Unset: nothing is checked on the backend's behalf. Declared: `validate` and every run refuse a name that is not an entry of `cfg/executables.yml` (`check_state_backend_executables` in [validate.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/commands/validate.py)), and the entry is version-checked like every executables entry. This plugin still runs no commands under it |
 | `config` | mapping | `{}` | **accepted, not read** |
 | `gitignore` | list[str] | `[]` | **accepted, not read** |
 | `tags` | mapping[str, str] | `{}` | **accepted, not read** |
@@ -225,9 +240,9 @@ other plugins, decide whether any of it is used:
   header, and a record in `meta-state/state-locations.yaml`; every consumer
   that reads the root's outputs gets a `data "terraform_remote_state"` with
   `backend = "gcs"` and the `remote_state_settings` above. When no root
-  resolves to it (the fixture, the live tree) the entry is loaded,
-  validated and registered, and nothing else happens: the golden carries
-  no `gcs` file.
+  resolves to it the entry is loaded, validated and registered, and
+  nothing else happens. The fixture's GCE roots resolve to it, so the
+  golden carries their `gcs` files.
 - **`use_state_backends` on or off.** Off, the plugin's registration is
   inert: `validate` skips the location rules, no file or record names the
   bucket, and `init` runs bare.
@@ -259,7 +274,7 @@ other plugins, decide whether any of it is used:
   `ENC[age:...]` marker and decrypts at load. The partial configuration
   file (`.tfbackend.hcl`) writes such a setting as the ciphertext it was
   read from: `render_backend_value` in
-  [collector.py](../hashicorp-utils/src/cs_image_system/hashicorp_utils/collector.py)
+  [collector.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/hashicorp-utils/src/cs_image_system/hashicorp_utils/collector.py)
   calls `emit`, and execution's materialise step puts the plaintext back
   in the `_private/` copy tofu runs from. So an `encryption_key` declared
   encrypted is committed as ciphertext in the backend file. That covers
@@ -279,10 +294,11 @@ other plugins, decide whether any of it is used:
   is what `state-migration begin` writes back as
   `<root>.tfbackend.previous.hcl`; the kind renders it, the operation is
   type-agnostic. No such move has been made.
-- **Fixture or live tree.** The fixture declares `gcs-east1` (so the type
-  is loaded, registered and rendered in every test run); the live tree
-  carries the same file entirely commented out, which loads as nothing. CI
-  therefore never sees a `gcs` registration.
+- **Fixture or live tree.** The fixture declares `gcs-east1` as its
+  default backend and binds its GCE roots to it (so the type is loaded,
+  registered, rendered and bound in every test run); the live tree
+  carries the same declaration entirely commented out, which loads as
+  nothing. The live tree's CI therefore never sees a `gcs` registration.
 
 ## What it tests and verifies
 
@@ -300,7 +316,7 @@ other plugins, decide whether any of it is used:
   backend '<name>' registered twice with different configurations`).
 - **At `validate`, and again at the start of every run** (gated by
   `use_state_backends`; `check_state_locations` in
-  [validate.py](../engine/src/cs_image_system/engine/commands/validate.py)):
+  [validate.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/commands/validate.py)):
   every terraform root's backend is resolved through the chain from the
   declarations alone (by name, or by one of a backend's `aliases`); a
   root naming an undeclared backend, a prefix whose
@@ -324,14 +340,15 @@ other plugins, decide whether any of it is used:
   [tests/test_gcs_backend.py](tests/test_gcs_backend.py) (the per-root
   prefix and its normalisation, identity as a path or an impersonation
   never a value, the model's trimming and registration, and a `gcs`
-  location as a third kind of place beside `s3` and `local` in the
-  collision rule) and the fixture-level test in
-  [tests/test_state_locations.py](../../tests/test_state_locations.py)
-  (declared, bound to nothing, moves nothing in the golden; its commented
-  twin loads as nothing). [tests/test_state_encryption.py](../../tests/test_state_encryption.py)
+  location as a kind of place of its own beside the core's `local` in the
+  collision rule) and the family's fixture-level test in
+  [tests/pipeline/test_state_locations_gce.py](../../tests/pipeline/test_state_locations_gce.py)
+  (in the family's fixture: the default backend, bound to every GCE root;
+  its commented twin loads as nothing). The system's
+  [tests/test_state_encryption.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_state_encryption.py)
   requires every declared and emitted `s3` backend to encrypt and counts
-  `s3` and `local` files; it asks nothing of `gcs`, and no `gcs` file is
-  emitted.
+  `s3` and `local` files; it asks nothing of `gcs`, and the shared golden
+  carries no `gcs` file.
 - **At apply.** Nothing of its own. The plugin runs no command; whether
   the bucket exists, is reachable and is writable by the identity is
   established by tofu's `init` against the backend file, and its verdict
@@ -342,7 +359,7 @@ other plugins, decide whether any of it is used:
   was resolved to, and it is compared, not verified against the bucket.
 - **Executable versions.** When the entry declares `executable`,
   `check_state_backend_executables` in
-  [validate.py](../engine/src/cs_image_system/engine/commands/validate.py)
+  [validate.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/engine/src/cs_image_system/engine/commands/validate.py)
   requires it to name an entry of `cfg/executables.yml`, at `validate`
   and at the head of every run, and the tool-version checks version-check
   that entry with the others. Unset, nothing is checked.
@@ -350,11 +367,11 @@ other plugins, decide whether any of it is used:
 ## When it fails
 
 Incidents that have happened, with their cause and fix, are recorded on
-[INCIDENTS.md](../../docs/INCIDENTS.md); what follows keeps each
+[INCIDENTS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/INCIDENTS.md); what follows keeps each
 failure's symptom, its meaning and what to do.
 
-No root is bound to a `gcs` backend, in the fixture or in the live tree,
-so what follows is what the code raises, in the order an operator would
+No live root is bound to a `gcs` backend (only the fixture's are), so
+what follows is what the code raises, in the order an operator would
 meet it: the symptom, what it means, and what to do.
 
 - `1 validation error for GcsStateBuilderModel / bucket / Field required`
@@ -412,7 +429,7 @@ meet it: the symptom, what it means, and what to do.
   state. To MOVE the state: run --no-dry-run ... --migrate-state <root>
   ...` -- the guard that makes moving the GCE roots onto a `gcs` backend an
   operation. The record is `meta-state/state-locations.yaml`; the way
-  through is the migration operation ([docs/OPERATIONS.md](../../docs/OPERATIONS.md),
+  through is the migration operation ([docs/OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md),
   "Where state lives"), never a rebinding. A root with nothing deployed
   logs `moves its state from ... nothing is deployed from it` and
   proceeds.
@@ -438,14 +455,16 @@ meet it: the symptom, what it means, and what to do.
 
 ## Related
 
-- [tf-s3-state-plugin](../tf-s3-state-plugin/README.md): the S3 type, and
+- [tf-s3-state-plugin](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/tf-s3-state-plugin/README.md): the S3 type, and
   the recipe for adding a type.
-- [local-state-plugin](../local-state-plugin/README.md): the type that needs
+- [local-state-plugin](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/local-state-plugin/README.md): the type that needs
   nothing.
-- [contract state.py](../contract/src/cs_image_system/contract/state.py):
+- [contract state.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/contract/src/cs_image_system/contract/state.py):
   `BackendRegistration`, `StateLocation` and the `BackendKindProtocol` this
   plugin's kind implements.
-- [hashicorp-utils collector.py](../hashicorp-utils/src/cs_image_system/hashicorp_utils/collector.py):
+- [hashicorp-utils collector.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/packages/hashicorp-utils/src/cs_image_system/hashicorp_utils/collector.py):
   `TerraformCollector`, to which the core hands the registrations at load.
-- [docs/CONFIGURATION.md](../../docs/CONFIGURATION.md) section 10 and
-  [docs/OPERATIONS.md](../../docs/OPERATIONS.md) "Where state lives".
+- The family's [docs/CONFIGURATION.md](../../docs/CONFIGURATION.md#the-gcs-state-backend)
+  (the `gcs` fields), the system's
+  [docs/CONFIGURATION.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/CONFIGURATION.md#10-cfgstate-backendsyml) section 10 and
+  [docs/OPERATIONS.md](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md) "Where state lives".

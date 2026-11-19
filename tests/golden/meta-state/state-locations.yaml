@@ -1,0 +1,22 @@
+workspaces:
+  gcp-gcs:
+    backend: gcs-east1
+    bucket: csis-sandbox-tfstate
+    location: gcs://csis-sandbox-tfstate/statefiles/csia/gcp_gcs/default.tfstate
+    prefix: statefiles/csia/gcp_gcs
+    run: 2026_08_26t12_00_00
+    type: gcs
+  gcp-pd:
+    backend: gcs-east1
+    bucket: csis-sandbox-tfstate
+    location: gcs://csis-sandbox-tfstate/statefiles/csia/gcp_pd/default.tfstate
+    prefix: statefiles/csia/gcp_pd
+    run: 2026_08_26t12_00_00
+    type: gcs
+  tofu-gce:
+    backend: gcs-east1
+    bucket: csis-sandbox-tfstate
+    location: gcs://csis-sandbox-tfstate/statefiles/csia/tofu_gce/default.tfstate
+    prefix: statefiles/csia/tofu_gce
+    run: 2026_08_26t12_00_00
+    type: gcs

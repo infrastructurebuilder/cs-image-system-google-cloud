@@ -37,17 +37,18 @@ from typing import Any, cast
 
 import pytest
 import yaml
-
-from cs_image_system.gcloud_runtime.gcp_packer_source import gce_label, gce_name
-from tests.harness import (
+from family import (
     FIXTURE_CONFIG,
     FixtureRun,
     copy_config,
     load_context,
     modules_beside,
     private_plugin_cache,
+    record_network_facts,
     stub_environment,
 )
+
+from cs_image_system.gcloud_runtime.gcp_packer_source import gce_label, gce_name
 
 GCE_RUNTIME = "gcloud-east1"
 GCE_BUILDER = "pckr-gce-ans"
@@ -141,18 +142,14 @@ def test_gce_names_and_labels_are_valid():
 
 def test_runtime_plugins_own_the_packer_source_type(gce):
     ctx = gce.ctx
-    from cs_image_system.aws_runtime.aws_runtime_builders import AwsCloudBuilder
     from cs_image_system.gcloud_runtime.gcp_runtime_builders import GCPCloudBuilder
-    aws = next(b for b in ctx.runtime_builders.values() if isinstance(b, AwsCloudBuilder))
     gcp = ctx.runtime_builders[GCE_RUNTIME]
     assert isinstance(gcp, GCPCloudBuilder)
-    assert aws.packer_source_type() == "amazon-ebs" and gcp.packer_source_type() == "googlecompute"
-    assert aws.build_id_from_artifact("us-east-2:ami-0abc") == "ami-0abc"
+    assert gcp.packer_source_type() == "googlecompute"
     assert gcp.build_id_from_artifact("noscsb-gcp-rh10-basic-rh-10-20260826-120000") == \
         "noscsb-gcp-rh10-basic-rh-10-20260826-120000"
     ib = ctx.image_builders[GCE_BUILDER]
     assert ib.get_packer_source_type() == "googlecompute"
-    assert ctx.image_builders["pckr-ebs-ans"].get_packer_source_type() == "amazon-ebs"
 
 
 def test_base_image_bakes_with_googlecompute(gce):
@@ -173,9 +170,6 @@ def test_base_image_bakes_with_googlecompute(gce):
     build = builds[0].read_text()
     assert 'only   = ["googlecompute.basic-rh-10"]' in build   # the bake provisioners follow the source type
     assert "amazon-ebs" not in build
-    # the AWS bake of the same base image is untouched
-    aws = _find(gce.generated / "base-image", 'source "amazon-ebs" "basic-rh-10"')
-    assert len(aws) == 1 and "googlecompute" not in aws[0].read_text()
 
 
 def test_instance_image_bakes_from_the_series_family(gce):
@@ -207,10 +201,7 @@ def test_per_runtime_tests_override_lands_in_the_gce_bake(gce):
     gce_build = "\n".join(p.read_text() for p in
                           (gce.generated / "base-image" / GCE_BUILDER).rglob("*build.pkr.hcl"))
     assert "rpm -q google-guest-agent" in gce_build
-    assert "nfs-utils" not in gce_build
-    aws_build = "\n".join(p.read_text() for p in
-                          (gce.generated / "base-image" / "pckr-ebs-ans").rglob("*build.pkr.hcl"))
-    assert "rpm -q nfs-utils" in aws_build  # builder-level tests still govern AWS
+    assert "nfs-utils" not in gce_build   # the builder-level spec (nfs-utils) is not the GCE entry's
 
 
 def test_gce_bake_disk_size_comes_from_the_runtime(gce):
@@ -259,9 +250,6 @@ def test_gce_bakes_end_with_the_finalize_provisioner(gce):
         assert "gpasswd -a" in gce_build and "google-sudoers" in gce_build, lifecycle
         # verification stays ahead of finalization: assertions judge the image
         assert gce_build.rindex("runtime bake finalization") > gce_build.rindex("in-bake verification"), lifecycle
-        aws_build = "\n".join(p.read_text() for p in
-                              (gce.generated / lifecycle / "pckr-ebs-ans").rglob("*build.pkr.hcl"))
-        assert "google-sudoers" not in aws_build, lifecycle  # AWS bakes untouched
 
 
 def test_iap_runtimes_bake_through_the_iap_tunnel(gce):
@@ -274,8 +262,6 @@ def test_iap_runtimes_bake_through_the_iap_tunnel(gce):
         text = _find(gce.generated / lifecycle, f'source "googlecompute" "{name}"')[0].read_text()
         assert re.search(r"use_iap\s*=\s*true", text), (lifecycle, name)
         assert "omit_external_ip" not in text            # egress for dnf/pip still needs the ephemeral IP
-    aws = _find(gce.generated / "base-image", 'source "amazon-ebs" "basic-rh-10"')[0].read_text()
-    assert "use_iap" not in aws
 
 
 def test_runtimes_without_iap_do_not_ask_for_the_tunnel(tmp_path, monkeypatch):
@@ -315,7 +301,8 @@ def increment3_overlay(root: Path) -> None:
         d["storage_builders"] = [b for b in d["storage_builders"]
                                  if b.get("name") not in ("gcp-pd", "gcp-filestore", "gcp-gcs")]
         d["storage_builders"] += [
-            {"name": "gcp-pd", "type": "tf-gcp-pd", "executable": "open-tofu-1", "runtime": GCE_RUNTIME, "size": 50},
+            {"name": "gcp-pd", "type": "tf-gcp-pd", "executable": "open-tofu-1", "runtime": GCE_RUNTIME, "size": 50,
+             "is_default": not d["storage_builders"]},   # the family's tree declares no other storage builder
             {"name": "gcp-filestore", "type": "tf-gcp-filestore", "executable": "open-tofu-1", "runtime": GCE_RUNTIME},
             {"name": "gcp-gcs", "type": "tf-gcp-gcs", "executable": "open-tofu-1", "runtime": GCE_RUNTIME,
              "bucket_name": "my-gce-bucket"},
@@ -325,13 +312,14 @@ def increment3_overlay(root: Path) -> None:
     def instance_builders(d):
         d["instance_builders"] = [b for b in d["instance_builders"] if b.get("name") != "tofu-gce"]
         d["instance_builders"].append({
-            "name": "tofu-gce", "type": "tofu-gce", "runtime": GCE_RUNTIME, "executable": "open-tofu-1"})
+            "name": "tofu-gce", "type": "tofu-gce", "runtime": GCE_RUNTIME, "executable": "open-tofu-1",
+            "is_default": not d["instance_builders"]})   # the family's tree declares no other instance builder
     _edit(root / "cfg" / "instance-builders.yml", instance_builders)
 
     def os_builders(d):
         for osb in d["os_builders"]:
             if osb["name"] == "basic-rh-10":
-                osb["storage_types"] = ["ebs", "efs", "s3", "pd", "filestore", "gcs"]
+                osb["storage_types"] = ["pd", "filestore", "gcs"]   # the family's own: no other plugin is installed
                 # the fixture's in-bake package test is AWS-specific; base-image
                 # tests are not per runtime yet (recorded in PLAN.md)
                 osb.get("tests", {}).pop("packages", None)
@@ -373,14 +361,10 @@ def test_base_image_prerequisites_are_per_runtime(gce3):
     summary = gce3.run("base-image", apply=False)
     assert summary.ok, summary.error
     gce = _text(_find(gce3.generated / "base-image", "source.googlecompute.basic-rh-10"))
-    aws = _text(_find(gce3.generated / "base-image", "source.amazon-ebs.basic-rh-10"))
     assert "nfs-utils" in gce and "amazon-efs-utils" not in gce and "awscli" not in gce
     assert "gcloud" in gce and "storage type 'pd' declared" in gce
-    assert "amazon-efs-utils" in aws and "gcloud" not in aws and "google-guest-agent" not in aws
-    # IAP session agent only on the GCE bake
+    # the IAP session agent on the GCE bake
     assert "google-guest-agent" in gce and "IAP" in gce
-    assert "declared but has no plugin on runtime" in gce  # ebs/efs/s3 on GCE
-    assert "declared but has no plugin on runtime" in aws  # pd/filestore/gcs on AWS
 
 
 def test_gce_storage_roots_generate_on_the_google_provider(gce3):
@@ -399,8 +383,6 @@ def test_gce_storage_roots_generate_on_the_google_provider(gce3):
     assert 'module "storage_gce_share"' in fs and "gcp_storage_filestore" in fs and "group_subtrees" in fs
     assert 'module "storage_gce_bucket"' in gcs and 'bucket_name = "my-gce-bucket"' in gcs and "public_read" in gcs
     assert "aws" not in pd.replace("aws-east2", "")  # no AWS provider on a GCP root
-    # the AWS roots still generate untouched
-    assert (root / "aws-ebs").exists()
 
 
 def test_gce_instance_root_and_launch_parameters(gce3):
@@ -412,7 +394,7 @@ def test_gce_instance_root_and_launch_parameters(gce3):
     assert "image_family" in tf and 'zone = "us-east1-b"' in tf and "public_ip = false" in tf
     assert "attached_disks" in tf and "gce_data" in tf and "self_link" in tf
     assert "startup_script" in tf and 'templatefile(' in tf
-    assert 'group_gids["coops"]' in tf                       # gid by reference
+    assert re.search(r'"group_gid"\s*=\s*3102', tf)            # a POSIX group's gid, as the tree declares it
     assert "ip_address" in tf and "share_name" in tf           # filestore by reference
     assert 'network_tags = ["csis"]' in tf
     tpl = _text(list(root.rglob("user-data-*.sh.tftpl")))
@@ -424,9 +406,6 @@ def test_gce_instance_root_and_launch_parameters(gce3):
     lp = yaml.safe_load((gce3.meta_state / "launch-params.yaml").read_text())["instances"]["gce-test"]
     assert {m["type"] for m in lp["mounts"]} == {"pd", "filestore"}
     assert lp["session"] == "iap"
-    # the AWS instance root is untouched by the GCE one
-    aws_tf = _text(list((gce3.generated / "instance-image" / "open-tofu").rglob("*.tf")))
-    assert "gce" not in aws_tf
 
 
 def test_gce_state_query_hooks_exist(gce3, monkeypatch):
@@ -573,7 +552,7 @@ def _with_filestore(tmp_path: Path) -> Path:
     sb = root / "cfg" / "storage-builders.yml"
     data = yaml.safe_load(sb.read_text())
     data["storage_builders"].append({"name": "gcp-fs", "type": "tf-gcp-filestore", "executable": "open-tofu-1",
-                                     "runtime": "gcloud-east1", "state_configuration": "s3-east1"})
+                                     "runtime": "gcloud-east1", "state_configuration": "gcs-east1"})
     sb.write_text(yaml.safe_dump(data, sort_keys=False))
     (root / "storages" / "filestore.yaml").write_text(yaml.safe_dump(
         {"storages": [{"name": "shared_nfs", "type": "gcp-fs", "mount_point": "/mnt/shared", "state": "active"}]}))
@@ -632,16 +611,21 @@ def _runtimes(data: dict) -> list[dict]:
 
 
 def _zoned_copy(tmp_path: Path, disk_zone: str) -> Path:
-    """A fixture copy whose DEFAULT runtime (AWS) asserts us-east-2a and whose
-    GCE disk declares ``disk_zone`` without naming a runtime on the item."""
+    """A fixture copy whose DEFAULT runtime is a second Google Cloud runtime
+    in another zone (us-west1-a) and whose GCE disk, on the builder of
+    gcloud-east1, declares ``disk_zone`` without naming a runtime on the
+    item: the disk is judged against its builder's runtime, never the
+    tree's default."""
     root = copy_config(tmp_path)
     rb = root / "cfg" / "runtime-builders.yml"
     data = yaml.safe_load(rb.read_text())
-    default = next(r for r in _runtimes(data) if r.get("is_default"))
-    assert default["name"] == "aws-east2-runtime"
-    subnet = next(s for s in default["networking"]["subnets"] if s.get("is_default"))
-    subnet["availability_zone"] = "us-east-2a"
+    east = next(r for r in _runtimes(data) if r["name"] == GCE_RUNTIME)
+    west = {**yaml.safe_load(yaml.safe_dump(east)), "name": "gcloud-west1", "region": "us-west1", "zone": "us-west1-a",
+            "aliases": [], "is_default": True}
+    east["is_default"] = False
+    _runtimes(data).append(west)
     rb.write_text(yaml.safe_dump(data, sort_keys=False))
+    record_network_facts(root)
     st = root / "storages" / "gce.yaml"
     sdata = yaml.safe_load(st.read_text())
     disk = next(s for s in sdata["storages"] if s["name"] == "gce_data")
@@ -667,7 +651,7 @@ def test_a_gce_disk_outside_its_runtimes_zone_is_refused_against_that_runtime(tm
     errors = _zone_errors(_zoned_copy(tmp_path, "us-east1-c"), monkeypatch)
     storage = [e for e in errors if e.startswith("storage 'gce_data'")]
     assert storage and "gcloud-east1" in storage[0] and "us-east1-b" in storage[0], errors
-    assert not any("us-east-2a" in e for e in storage), "compared with the AWS default runtime"
+    assert not any("us-west1-a" in e for e in storage), "compared with the tree's default runtime"
     # the instance that mounts it is in the runtime's zone: two zones, refused
     assert any(e.startswith("instance 'gce-test'") and "us-east1-c" in e and "us-east1-b" in e
                for e in errors), errors
@@ -729,7 +713,6 @@ def test_a_tag_key_gce_cannot_take_is_refused_at_validate(tmp_path: Path, monkey
     ctx = load_context(root)
     errors = [str(e) for e in check_label_keys(ctx)]
     assert any("imgfile-basic-dask" in e and "'2024'" in e and "gcloud-east1" in e for e in errors), errors
-    assert not any("aws-east2-runtime" in e for e in errors), "AWS tags take any key"
 
 
 def test_the_fixture_has_no_label_finding(tmp_path: Path, monkeypatch):
@@ -755,14 +738,14 @@ def test_an_out_of_scope_instance_root_writes_no_tfvars(tmp_path: Path, monkeypa
     run = FixtureRun(tmp_path, monkeypatch)
     try:
         ctx = run.ctx
-        ctx.only_runtime_scope = "gcloud-east1"
-        aws_root = ctx.instance_builders["open-tofu"]
+        ctx.only_runtime_scope = "gcloud-west1"           # a run scoped to another runtime than the root's
+        out_of_scope = ctx.instance_builders["tofu-gce"]
 
         def must_not_look(*a, **kw):
             raise AssertionError("an out-of-scope root looked for images to write into its tfvars")
         monkeypatch.setattr(type(ctx), "get_provider_specific_image", must_not_look)
-        aws_root.pre_finalize_phase(ExecutionLifecyclePhase.INSTANCE_GENERATION)
-        aws_root.post_finalize_phase(ExecutionLifecyclePhase.INSTANCE_GENERATION)
+        out_of_scope.pre_finalize_phase(ExecutionLifecyclePhase.INSTANCE_GENERATION)
+        out_of_scope.post_finalize_phase(ExecutionLifecyclePhase.INSTANCE_GENERATION)
     finally:
         run.restore_cwd()
 

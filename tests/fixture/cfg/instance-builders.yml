@@ -1,0 +1,8 @@
+---
+instance_builders:
+- name: tofu-gce
+  type: tofu-gce
+  runtime: gcloud-east1
+  executable: open-tofu-1
+  state_configuration: gcs-east1
+  is_default: true

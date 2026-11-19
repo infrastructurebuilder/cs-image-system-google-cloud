@@ -14,7 +14,7 @@ import shutil
 from pathlib import Path
 
 import yaml
-from harness import FixtureRun, copy_config
+from family import FixtureRun, copy_config
 
 GCE_RUNTIME = "gcloud-east1"
 GCE_INSTANCE = "gce-test"

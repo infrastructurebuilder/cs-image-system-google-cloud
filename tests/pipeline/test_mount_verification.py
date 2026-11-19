@@ -14,8 +14,7 @@ history: bundle XII item 22 (walk finding F50).
 from __future__ import annotations
 
 import pytest
-from harness import FixtureRun
-from test_ephemeral import prepared  # noqa: F401 - the fixture
+from family import FixtureRun
 
 KERNEL_ONLY = """
 Sep  8 14:07:27 gce-test systemd[1]: Starting google-startup-scripts.service...
@@ -43,7 +42,7 @@ def test_the_startup_script_reports_each_mount_point(tmp_path, monkeypatch):
         run.restore_cwd()
 
 
-def test_gce_mount_check_reads_the_declared_mount_points_lines_not_a_count(prepared, monkeypatch):  # noqa: F811
+def test_gce_mount_check_reads_the_declared_mount_points_lines_not_a_count(prepared, monkeypatch):
     from cs_image_system.base.commands.verify_instance import VerificationFailed, verify_instance
     from cs_image_system.gcloud_runtime.gcp_runtime_builders import GCPCloudBuilder
     root, make = prepared

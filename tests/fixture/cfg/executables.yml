@@ -1,0 +1,22 @@
+---
+executables:
+- name: packer
+  version: '>=1.14'
+  binary: /usr/local/bin/packer
+- name: gcloud
+  binary: /usr/local/bin/gcloud
+  version: '>=500'
+- name: ansible-playbook
+  binary: /usr/local/bin/ansible-playbook
+  version: '>=2.16'
+- name: bash
+  binary: /usr/local/bin/bash
+  version: '>=5'
+- name: open-tofu-1
+  type: tofu
+  binary: /usr/local/bin/tofu
+  version: '>1,<2'
+- name: yq
+  version: '>=4.5'
+- name: jq
+  version: '>=1.7'
