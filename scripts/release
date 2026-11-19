@@ -97,8 +97,14 @@ def new_version(part: str) -> str:
 def release(part: str, index: str, dry: bool) -> int:
     if index not in INDEXES:
         raise Refused(f"the index is `test` or `pypi`, not {index!r}")
-    if not dry and sh("git", "status", "--porcelain", capture=True).stdout.strip():
-        raise Refused("the checkout has uncommitted changes -- commit or put them back first; nothing was changed")
+    if not dry:
+        # a change to a tracked file, or anything untracked inside a package (a build would take it), refuses;
+        # an untracked file outside the packages (an editor's or an agent's own) is no part of a release
+        lines = sh("git", "status", "--porcelain", capture=True).stdout.splitlines()
+        dirty = [ln for ln in lines if not ln.startswith("?? ") or ln[3:].startswith("packages/")]
+        if dirty:
+            raise Refused("the checkout has uncommitted changes (" + ", ".join(ln[3:] for ln in dirty[:5])
+                          + ") -- commit or put them back first; nothing was changed")
     current = sh("uv", "run", "--no-sync", "bump-my-version", "show", "current_version", capture=True).stdout.strip()
     version = new_version(part)
     if sh("git", "tag", "--list", f"v{version}", capture=True).stdout.strip():

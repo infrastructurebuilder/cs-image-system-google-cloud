@@ -7,12 +7,11 @@ name: CI
 # The Google Cloud family's acceptance tests on a fresh runner, with everything
 # of the system it needs installed from the package index by the ranges its
 # manifests declare (`just init` resolves the lock; nothing reads another
-# repository's checkout). Every push to develop and every pull request. The live
-# tests (tests/live) need a Google Cloud session, cost the operator money and
-# run only when dispatched by hand, with the operator's identity.
+# repository's checkout). Every push, to any branch, and every pull request
+# (spec 005, FR-003). The live tests (tests/live) need a Google Cloud session
+# and run only when dispatched by hand, with the operator's identity.
 on:
   push:
-    branches: [develop]
   pull_request:
   workflow_dispatch:
     inputs:
