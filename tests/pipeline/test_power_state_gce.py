@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pytest
 
-from cs_image_system.base import power_state as ps
+from cs_image_system.contract import power_state as ps  # the vocabulary is the contract's; the kit re-exports it
 from cs_image_system.gcloud_runtime.gcp_runtime_builders import GCPCloudBuilder
 
 
