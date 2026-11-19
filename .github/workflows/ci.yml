@@ -1,0 +1,86 @@
+# SPDX-FileCopyrightText: 2026 Mykel Alvis <mykelalvis@infrastructurebuilder.org>
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: CI
+
+# The Google Cloud family's acceptance tests on a fresh runner, with everything
+# of the system it needs installed from the package index by the ranges its
+# manifests declare (`just init` resolves the lock; nothing reads another
+# repository's checkout). Every push, to any branch, and every pull request
+# (spec 005, FR-003). The live tests (tests/live) need a Google Cloud session
+# and run only when dispatched by hand, with the operator's identity.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      live:
+        description: "Also run the live tests (needs the Google Cloud identity; whatever they stand up they tear down)"
+        type: boolean
+        default: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install just
+        uses: extractions/setup-just@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.13"
+
+      - name: Install OpenTofu
+        # one pipeline test validates the generated GCE roots with a real `tofu`; the strict
+        # session counts a test that did not run as a failure, so the tool is needed. The real
+        # binary, not the action's wrapper
+        uses: opentofu/setup-opentofu@v2
+        with:
+          tofu_wrapper: false
+
+      - name: Install dependencies
+        run: just init
+
+      - name: Acceptance tests
+        run: just test
+
+      - name: Public-safe
+        # nothing in the checkout may be material that must never be public
+        run: just public-safe
+
+  live:
+    if: github.event_name == 'workflow_dispatch' && inputs.live
+    needs: verify
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install just
+        uses: extractions/setup-just@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.13"
+
+      - name: Federated Google Cloud credentials
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Install the Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Install dependencies
+        run: just init
+
+      - name: Live tests
+        run: just test-live

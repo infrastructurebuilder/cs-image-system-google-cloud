@@ -1,0 +1,59 @@
+---
+images:
+- name: imgfile-basic-dask
+  group: coops
+  runtimes:
+  - image_builder: pckr-gce-ans
+    machine_type: e2-medium
+  tags:
+    dask: 'true'
+  type: pckr-gce-ans
+  source_image: basic-rh-10
+  parent_policy: follow
+  description: Basic Dask head node with essential tools and configurations.
+  tests:
+    commands:
+    - run: git --version
+      contains: git version
+    packages:
+    - git
+    users:
+    - csisadmin
+    post_bake:
+      commands:
+      - run: python3 -c 'import dask'
+      files:
+      - path: /var/lib/csis/launch-applied
+      mounts:
+      - /mnt/gce-data
+  release:
+    model: default
+  modifications:
+  - name: dask-setup-jeffy
+    type: ansible-default
+    playbooks:
+    - setup_dask.yml
+    config:
+      dask_version: 2023.9.1AA
+      jupyterlab_extension: true
+  - name: derivative-setup
+    type: bash-remote
+    script:
+    - echo 'derivative setup'
+    - sudo mkdir -p /opt/derivative && echo 1.0.0 | sudo tee /opt/derivative/VERSION
+    scripts:
+    - mod_image.sh
+    ensure:
+      packages:
+      - git
+      files:
+      - path: /etc/derivative.conf
+        content: 'version=1.0.0
+
+          '
+        mode: '0644'
+      commands:
+      - run: sudo mkdir -p /opt/derivative/data
+        unless: test -d /opt/derivative/data
+    config:
+      derivative_version: 1.0.0

@@ -1,0 +1,10 @@
+---
+instances:
+- name: gce-test
+  image: imgfile-basic-dask
+  runtime: gcloud-east1
+  type: tofu-gce
+  description: First GCE instance (GCP readiness); free-tier e2-micro
+  storages:
+  - name: gce_data
+    mount_point: /mnt/gce-data

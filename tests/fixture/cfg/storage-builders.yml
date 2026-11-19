@@ -1,0 +1,16 @@
+---
+storage_builders:
+- name: gcp-pd
+  type: tf-gcp-pd
+  executable: open-tofu-1
+  runtime: gcloud-east1
+  state_configuration: gcs-east1
+  size: 30
+  disk_type: pd-standard
+  is_default: true
+- name: gcp-gcs
+  type: tf-gcp-gcs
+  executable: open-tofu-1
+  runtime: gcloud-east1
+  state_configuration: gcs-east1
+  bucket_name: csis-sandbox-86233086783-default-bucket

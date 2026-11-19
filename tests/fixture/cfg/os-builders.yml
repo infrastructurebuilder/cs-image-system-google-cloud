@@ -1,0 +1,31 @@
+---
+os_builders:
+- name: basic-rh-10
+  identity_types:
+  - posix
+  storage_types:
+  - pd
+  - gcs
+  tests:
+    packages:
+    - nfs-utils
+  update:
+    policy: security
+    packages:
+    - openssl
+    exclude:
+    - kernel*
+  type: rhel
+  family: alma-linux
+  family_version: 10
+  is_default: true
+  output_image_name: '{{ this.name }}-{{ this.family }}-{{ this.family_version }}'
+  runtimes:
+  - name: gcp-my-rh10
+    image_builder: pckr-gce-ans
+    ssh_username: packer
+    tests:
+      packages:
+      - google-guest-agent
+    default_machine_type: e2-small
+    output_image_name: noscsb-gcp-rh10-{{ this.name }}
