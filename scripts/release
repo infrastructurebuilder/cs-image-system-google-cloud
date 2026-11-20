@@ -139,7 +139,9 @@ def release(part: str, index: str, dry: bool) -> int:
                           f"`uv publish --index {index_name} dist/*{version}*` again, or put the bump back: {undo}")
     except Refused as e:
         raise Refused(f"{e} (the bump to {version} is uncommitted: {undo})") from None
-    sh("git", "commit", "-q", "-am", f"release {version}")
+    # the line's first release bumps nothing, so there may be nothing to commit: the tag marks HEAD either way
+    if sh("git", "status", "--porcelain", "--untracked-files=no", capture=True).stdout.strip():
+        sh("git", "commit", "-q", "-am", f"release {version}")
     sh("git", "tag", "-a", f"v{version}", "-m", f"release {version}")
     say(f"{version} is on {index_name}, committed and tagged v{version}; push it: "
         f"git push origin HEAD v{version}")

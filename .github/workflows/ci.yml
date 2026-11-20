@@ -77,7 +77,22 @@ jobs:
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 
       - name: Install the Google Cloud CLI
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Install OpenTofu
+        # validate checks every executable the fixture declares; the real binary, not the wrapper
+        uses: opentofu/setup-opentofu@v2
+        with:
+          tofu_wrapper: false
+
+      - name: Place the tools where the fixture's executables.yml names them
+        # tests/fixture/cfg/executables.yml names /usr/local/bin/{tofu,packer,gcloud,ansible-playbook,bash};
+        # the runner has them elsewhere on PATH. A tool that is missing stays missing, and validate says so
+        run: |
+          command -v ansible-playbook >/dev/null || { uv tool install ansible-core; PATH="$(uv tool dir --bin):$PATH"; }
+          for tool in tofu packer gcloud ansible-playbook bash; do
+            [ -x "/usr/local/bin/$tool" ] || { src="$(command -v "$tool" || true)"; [ -n "$src" ] && sudo ln -sf "$src" "/usr/local/bin/$tool"; }
+          done
 
       - name: Install dependencies
         run: just init
