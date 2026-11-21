@@ -564,10 +564,10 @@ the terraform, provider, variable, backend and remote-state blocks),
 `google-cloud-compute>=1.49` and `pydantic>=2.13`. The package does not
 depend on `cs-image-system-tf-ebs-instance-plugin` or on
 `cs-image-system-aws-runtime-plugin`: installing it installs no AWS
-package and no `boto3`, which the neutral-root test
-([tests/test_neutral_tofu_root.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_neutral_tofu_root.py))
-proves by syncing an environment for this plugin and the container one
-alone. The compute client is imported lazily, inside
+package and no `boto3`. Every test in this repository runs in an
+environment that holds no AWS package at all (its `just test`, and the
+low end of its ranges in `just full-test`), so a dependency on one would
+fail them. The compute client is imported lazily, inside
 `TofuPdStorageBuilder._lookup`, so it is needed only by `state query`
 and by the runs that perform one; generation never imports it.
 
@@ -1037,11 +1037,16 @@ validate` of the generated GCE roots when tofu is installed),
 name and mount path agree, IAP bakes),
 [test_gce_cycle.py](../../tests/pipeline/test_gce_cycle.py) (the wipe
 script, the storage destroy whitelist, the cycle overlays),
-[test_decommission.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_decommission.py),
-[test_detach.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_detach.py),
-[test_ephemeral.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_ephemeral.py),
-[test_run_scoping.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_run_scoping.py) and
-[test_state_locations.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_state_locations.py).
+[test_detach_gce.py](../../tests/pipeline/test_detach_gce.py) (a GCE
+mount's unmount over IAP, the detach gate),
+[test_ephemeral_gce.py](../../tests/pipeline/test_ephemeral_gce.py) (the
+ephemeral instance's serial-console verification) and
+[test_state_locations_gce.py](../../tests/pipeline/test_state_locations_gce.py)
+(the roots' state on the `gcs` backend). The decommission and run-scoping
+rules these roots follow are the core's, not this plugin's: the system
+repository proves them on its own AWS runtime
+([test_decommission.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_decommission.py),
+[test_run_scoping.py](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/tests/test_run_scoping.py)).
 Nothing reaches GCP from the tests.
 
 ## When it fails
