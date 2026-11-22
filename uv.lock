@@ -567,7 +567,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "cs-image-system-base", specifier = ">=0.2,<0.3" },
-    { name = "cs-image-system-contract", specifier = ">=0.5,<0.6" },
+    { name = "cs-image-system-contract", specifier = ">=0.5,<0.7" },
     { name = "cs-image-system-hashicorp-utils", specifier = ">=0.2,<0.3" },
     { name = "google-api-core", specifier = ">=2.31" },
     { name = "google-auth", specifier = ">=2.55" },
@@ -599,7 +599,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "cs-image-system-base", specifier = ">=0.2,<0.3" },
-    { name = "cs-image-system-contract", specifier = ">=0.5,<0.6" },
+    { name = "cs-image-system-contract", specifier = ">=0.5,<0.7" },
     { name = "cs-image-system-hashicorp-utils", marker = "extra == 'test'", specifier = ">=0.2,<0.3" },
     { name = "cs-image-system-local-state-plugin", marker = "extra == 'test'", specifier = ">=0.1.11,<0.2" },
     { name = "pydantic", specifier = ">=2.13" },
@@ -758,7 +758,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "cs-image-system-base", specifier = ">=0.2,<0.3" },
-    { name = "cs-image-system-contract", specifier = ">=0.5,<0.6" },
+    { name = "cs-image-system-contract", specifier = ">=0.5,<0.7" },
     { name = "cs-image-system-gcloud-runtime-plugin", editable = "packages/gcloud-runtime-plugin" },
     { name = "cs-image-system-hashicorp-utils", specifier = ">=0.2,<0.3" },
     { name = "cs-image-system-tofu-roots", specifier = ">=0.2,<0.3" },
