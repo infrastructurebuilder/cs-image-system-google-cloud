@@ -68,20 +68,29 @@ down.
 ## Releasing
 
 ```sh
-just release <part> [test|pypi]
+just release <part> pypi            # full-test, then a commit and the tag v<version>
+git push origin HEAD v<version>     # the tag's push publishes the three
 ```
 
-`<part>` is `major`, `minor`, `patch` or an explicit version; the index is
-`test` (TestPyPI, the default) or `pypi`. The release moves the family's
-one number in the three manifests, runs `full-test`, builds, refuses a
-version the index ever held, publishes the three together, then commits
-and tags `v<version>`. `yes` as a third argument is the dry form: the
-plan, with nothing changed.
+`<part>` is `major`, `minor`, `patch` or an explicit version. The release
+moves the family's one number in the three manifests, refuses a version
+either index ever held for any of them, runs `full-test`, builds, then
+commits and tags `v<version>`. `yes` as a third argument is the dry form:
+the plan, with nothing changed.
+
+Pushing the tag publishes the release: the `Publish` workflow uploads the
+three to TestPyPI and then, for a final version, PyPI, by trusted
+publishing, so no upload token is stored anywhere.
+[docs/RELEASING.md](docs/RELEASING.md) says how that trust is set up on
+each index and in the repository, and what a fork must change to publish
+under names of its own.
 
 ## Documents
 
 - [docs/CONFIGURATION.md](docs/CONFIGURATION.md): the fields of the
   `gcloud` runtime and the `gcs` state backend, the one source for them.
+- [docs/RELEASING.md](docs/RELEASING.md): how a release is cut and
+  published, setting up trusted publishing, and releasing a fork.
 - The package READMEs, linked in the table above: each package in depth,
   from what it registers to how it fails.
 - The system's documents for everything else: the
