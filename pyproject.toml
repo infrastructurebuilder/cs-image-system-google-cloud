@@ -15,7 +15,7 @@
 # path into another repository.
 [project]
 name = "cs-image-system-google-cloud-workspace"
-version = "0.2.0"
+version = "0.2.1"
 description = "The workspace of the Google Cloud provider family for cs-image-system (never published)"
 requires-python = ">=3.13"
 license = "Apache-2.0"
@@ -71,7 +71,7 @@ explicit = true
 # The family's one number: the three manifests' versions, the exact pin of the
 # Terraform plugin on the runtime, and this root's.
 [tool.bumpversion]
-current_version = "0.2.0"
+current_version = "0.2.1"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)"
 serialize = ["{major}.{minor}.{patch}"]
 commit = false

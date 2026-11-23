@@ -545,7 +545,7 @@ wheels = [
 
 [[package]]
 name = "cs-image-system-gcloud-runtime-plugin"
-version = "0.2.0"
+version = "0.2.1"
 source = { editable = "packages/gcloud-runtime-plugin" }
 dependencies = [
     { name = "cs-image-system-base" },
@@ -581,7 +581,7 @@ provides-extras = ["test"]
 
 [[package]]
 name = "cs-image-system-gcs-state-plugin"
-version = "0.2.0"
+version = "0.2.1"
 source = { editable = "packages/gcs-state-plugin" }
 dependencies = [
     { name = "cs-image-system-base" },
@@ -609,7 +609,7 @@ provides-extras = ["test"]
 
 [[package]]
 name = "cs-image-system-google-cloud-workspace"
-version = "0.2.0"
+version = "0.2.1"
 source = { virtual = "." }
 
 [package.dev-dependencies]
@@ -738,7 +738,7 @@ testing = [
 
 [[package]]
 name = "cs-image-system-tf-gcp-plugin"
-version = "0.2.0"
+version = "0.2.1"
 source = { editable = "packages/tf-gcp-plugin" }
 dependencies = [
     { name = "cs-image-system-base" },
