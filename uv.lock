@@ -455,22 +455,22 @@ wheels = [
 
 [[package]]
 name = "cs-image-system-ansible-plugin"
-version = "0.1.11"
-source = { registry = "https://pypi.org/simple" }
+version = "0.1.12"
+source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "cs-image-system-base" },
     { name = "cs-image-system-contract" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1a/41/d7a24be069915ab4a04d65d8a6b54176c7a0fa6d1a91ac46bc8248135aec/cs_image_system_ansible_plugin-0.1.11.tar.gz", hash = "sha256:d64c6e153fc1196774fb3df4b25226e2ce5b2264e02d191a2da86f5addcbb171", size = 33439, upload-time = "2026-11-19T15:26:42.621Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/7e/ce/5cb29f37e12028ae0bb1980937eab4bd81f2e0b7f02e4ff772733a183522/cs_image_system_ansible_plugin-0.1.12.tar.gz", hash = "sha256:45add3a961fa8952b4ed74eb7d24558d19f7de2876158f1e34d723c466191194", size = 33545, upload-time = "2026-11-20T16:38:55.926Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f0/bc/b4761f52dcd7569e79bc039aa0b0d94a421b098859140b09f17b8ac7b0c9/cs_image_system_ansible_plugin-0.1.11-py3-none-any.whl", hash = "sha256:9f202ec5aec3f1da0b7e847729e0a7cb75ebb37677ac11879c2daf015a4d9dd6", size = 23939, upload-time = "2026-11-19T15:26:41.514Z" },
+    { url = "https://test-files.pythonhosted.org/packages/e0/3c/2b93f8d752269696a16b3eecadb8f702951988160eeb371338335d47aef6/cs_image_system_ansible_plugin-0.1.12-py3-none-any.whl", hash = "sha256:beb41794083dfd5f32e275eb7700aea2d1b24f16c468890514123366a68c3aab", size = 23995, upload-time = "2026-11-20T16:38:54.658Z" },
 ]
 
 [[package]]
 name = "cs-image-system-base"
-version = "0.2.0"
-source = { registry = "https://pypi.org/simple" }
+version = "0.2.1"
+source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "age" },
     { name = "cs-image-system-contract" },
@@ -479,56 +479,56 @@ dependencies = [
     { name = "pyyaml" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/28/c7/3c62c1c526ce4c9ffb551ead714a8f8b09fd91f8f79e5846c7485d3f1fc5/cs_image_system_base-0.2.0.tar.gz", hash = "sha256:94a5ba875a6d255dbebe88cc52fd28040fe167e5e7cc63f14111c4c6551adf13", size = 297728, upload-time = "2026-11-19T15:26:40.044Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/7b/8e/f14f045b7d8ec97c2ff7a96325b1a7c9f2dc9cdbf7d571d1d8d910c2392f/cs_image_system_base-0.2.1.tar.gz", hash = "sha256:c1d6b99716d82e52b68b29de4ecc30393e29f2bbaf551f9647db4b5f5aeabbed", size = 298059, upload-time = "2026-11-20T16:38:53.348Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/79/3e/d06351839b7bbd3d20a6d53acf1f14fd12ac341ef7d7301f37d08b3fab02/cs_image_system_base-0.2.0-py3-none-any.whl", hash = "sha256:104ef7a8694bd168f078e344605086401c902d1622428be6396d23943da9b98b", size = 275174, upload-time = "2026-11-19T15:26:38.633Z" },
+    { url = "https://test-files.pythonhosted.org/packages/7b/93/86dc482689f6cdc96f9f14feb7b432b2883bf5ddde11e4c5a24d4cdabf6a/cs_image_system_base-0.2.1-py3-none-any.whl", hash = "sha256:9115f807bcc23d7b03e51c15bc11457b87fea843b252b636bbf3e964e51ed651", size = 275347, upload-time = "2026-11-20T16:38:51.72Z" },
 ]
 
 [[package]]
 name = "cs-image-system-bash-mod-plugin"
-version = "0.1.11"
-source = { registry = "https://pypi.org/simple" }
+version = "0.1.12"
+source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "cs-image-system-base" },
     { name = "cs-image-system-contract" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5e/7b/8e83fec3db3945b1ff3408ce77e650d67776aa045903102fea68f86a32ee/cs_image_system_bash_mod_plugin-0.1.11.tar.gz", hash = "sha256:79fd322284be6f2e142a9a7aea1f09524fd664e5e12d53a43afe7321f4dbeca6", size = 38149, upload-time = "2026-11-19T15:26:44.747Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/3c/45/fd5d6d61054d14a6a113e5da65be6456564b0fc329004afce07a5f4506a1/cs_image_system_bash_mod_plugin-0.1.12.tar.gz", hash = "sha256:754aa248bada62fcc2f8705d42bbc9589d946649949ac8679949355fc6df380f", size = 38266, upload-time = "2026-11-20T16:38:58.659Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/27/5f/6cfcbe3d761534cc2beb8e387b3d5445badd9dc97310104c28e8d5617de7/cs_image_system_bash_mod_plugin-0.1.11-py3-none-any.whl", hash = "sha256:519de45ee4a12d8a19318fd3b720c4eb77445e31f89e0949f2724c74587c84d5", size = 27448, upload-time = "2026-11-19T15:26:43.841Z" },
+    { url = "https://test-files.pythonhosted.org/packages/09/ac/166d1d5e1c9a0e8717d70014fd769f7856658b205cf660562c92376c8d59/cs_image_system_bash_mod_plugin-0.1.12-py3-none-any.whl", hash = "sha256:5fee964c93f8ca88bd49057ba45b4c608c2d228631e4929bb54eb123a578962e", size = 27500, upload-time = "2026-11-20T16:38:56.927Z" },
 ]
 
 [[package]]
 name = "cs-image-system-contract"
 version = "0.5.0"
-source = { registry = "https://pypi.org/simple" }
+source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "packaging" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/fb/e8/d59f6ca0aee1e10f783fa3c113f236e2d9c8ee2b70119a56ecd491f108be/cs_image_system_contract-0.5.0.tar.gz", hash = "sha256:e61d482542cefb79ccb8fb8a766c65b3e253d293ce7d15517c770bf6f5c86960", size = 82562, upload-time = "2026-11-19T15:26:36.565Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/fb/e8/d59f6ca0aee1e10f783fa3c113f236e2d9c8ee2b70119a56ecd491f108be/cs_image_system_contract-0.5.0.tar.gz", hash = "sha256:e61d482542cefb79ccb8fb8a766c65b3e253d293ce7d15517c770bf6f5c86960", size = 82562, upload-time = "2026-11-19T15:37:50.959Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f4/6f/109d505d081c563e0f5823642e30f526864f140d7d90065cbd625008735b/cs_image_system_contract-0.5.0-py3-none-any.whl", hash = "sha256:f383c20dc6da8a921c94f2b38edb6b12e9e64e547dac22729310331d049c3fd4", size = 91133, upload-time = "2026-11-19T15:26:35.43Z" },
+    { url = "https://test-files.pythonhosted.org/packages/f4/6f/109d505d081c563e0f5823642e30f526864f140d7d90065cbd625008735b/cs_image_system_contract-0.5.0-py3-none-any.whl", hash = "sha256:f383c20dc6da8a921c94f2b38edb6b12e9e64e547dac22729310331d049c3fd4", size = 91133, upload-time = "2026-11-19T15:37:49.383Z" },
 ]
 
 [[package]]
 name = "cs-image-system-default-os-plugin"
-version = "0.1.11"
-source = { registry = "https://pypi.org/simple" }
+version = "0.1.12"
+source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "cs-image-system-base" },
     { name = "cs-image-system-contract" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f8/89/1e89a5dfce3d4dfa3f5600f767aacef8128a0be630ca67baefb65f3a3720/cs_image_system_default_os_plugin-0.1.11.tar.gz", hash = "sha256:549f4774e6b6980047833f0e4a7cc9488b6408a030f8ff27b35c1f2ac649a5bb", size = 47546, upload-time = "2026-11-19T15:26:47.691Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/0d/4f/f963dc7cc6bf5b9882d396a6404fc53cb9d9644f6d0766c6f9d962294936/cs_image_system_default_os_plugin-0.1.12.tar.gz", hash = "sha256:0b61dd64c731999685f34ab4fbff6f603ecb2374a8543d87438b13a0ac636181", size = 47917, upload-time = "2026-11-20T16:39:01.731Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f1/35/ee54a83615dfefbc5acb940e4a0b51a8aa408c40e28770ca1684b839bd43/cs_image_system_default_os_plugin-0.1.11-py3-none-any.whl", hash = "sha256:34d40a1eeb430e15975efa6c91ba248693fb1a2d693a48a26c84d52936a68121", size = 37810, upload-time = "2026-11-19T15:26:46.1Z" },
+    { url = "https://test-files.pythonhosted.org/packages/05/0d/817d08fcaf02109813dd8be3cf126fabd8033343d996a46a40c4a3f5e054/cs_image_system_default_os_plugin-0.1.12-py3-none-any.whl", hash = "sha256:188db356b380b0329911741a4c745d5c6da81f6b4c2c941302d337c666a1fa4c", size = 38000, upload-time = "2026-11-20T16:38:59.817Z" },
 ]
 
 [[package]]
 name = "cs-image-system-engine"
-version = "0.1.11"
-source = { registry = "https://pypi.org/simple" }
+version = "0.1.12"
+source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "cs-image-system-base" },
     { name = "cs-image-system-contract" },
@@ -538,9 +538,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ac/d7/a3ee05ee0f468a9797508566db429d64875ca3073f9eb6fd755b0875460d/cs_image_system_engine-0.1.11.tar.gz", hash = "sha256:d216eb4829b3c677acac7ba6557361fbafb34fded58237960e6e5917a8739558", size = 318529, upload-time = "2026-11-19T15:26:50.176Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/5b/bf/1b2d452fe5202bb30f9998660f96d19922a347683d45a241da8d052d000c/cs_image_system_engine-0.1.12.tar.gz", hash = "sha256:1f31c7ebdf4bbf2e4934187937d06540f6f8ec9477b681ec4501bdc98f728d65", size = 318525, upload-time = "2026-11-20T16:39:04.378Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f2/21/f6e01405e23211f8891b6d3d7dc00cc8f83eb8d49da059143a7c383bd23d/cs_image_system_engine-0.1.11-py3-none-any.whl", hash = "sha256:aefbeffbb9a3165ec899dc8cf67893046eff7079c6129ccd293767bb263bb748", size = 300176, upload-time = "2026-11-19T15:26:48.923Z" },
+    { url = "https://test-files.pythonhosted.org/packages/00/13/a3782b4084b52d21cf579b00b11b42169a2a9e3e8d1454c1e21423cde8ba/cs_image_system_engine-0.1.12-py3-none-any.whl", hash = "sha256:398307d3c6be0dc0b3f0e2d16f2968d81b6bd1472e63e0937d9e46d4d1097699", size = 300178, upload-time = "2026-11-20T16:39:02.94Z" },
 ]
 
 [[package]]
@@ -566,9 +566,9 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cs-image-system-base", specifier = ">=0.2,<0.3" },
-    { name = "cs-image-system-contract", specifier = ">=0.5,<0.7" },
-    { name = "cs-image-system-hashicorp-utils", specifier = ">=0.2,<0.3" },
+    { name = "cs-image-system-base", specifier = ">=0.2,<0.3", index = "https://test.pypi.org/simple/" },
+    { name = "cs-image-system-contract", specifier = ">=0.5,<0.7", index = "https://test.pypi.org/simple/" },
+    { name = "cs-image-system-hashicorp-utils", specifier = ">=0.2,<0.3", index = "https://test.pypi.org/simple/" },
     { name = "google-api-core", specifier = ">=2.31" },
     { name = "google-auth", specifier = ">=2.55" },
     { name = "google-cloud-compute", specifier = ">=1.49" },
@@ -598,10 +598,10 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cs-image-system-base", specifier = ">=0.2,<0.3" },
-    { name = "cs-image-system-contract", specifier = ">=0.5,<0.7" },
-    { name = "cs-image-system-hashicorp-utils", marker = "extra == 'test'", specifier = ">=0.2,<0.3" },
-    { name = "cs-image-system-local-state-plugin", marker = "extra == 'test'", specifier = ">=0.1.11,<0.2" },
+    { name = "cs-image-system-base", specifier = ">=0.2,<0.3", index = "https://test.pypi.org/simple/" },
+    { name = "cs-image-system-contract", specifier = ">=0.5,<0.7", index = "https://test.pypi.org/simple/" },
+    { name = "cs-image-system-hashicorp-utils", marker = "extra == 'test'", specifier = ">=0.2,<0.3", index = "https://test.pypi.org/simple/" },
+    { name = "cs-image-system-local-state-plugin", marker = "extra == 'test'", specifier = ">=0.1.11,<0.2", index = "https://test.pypi.org/simple/" },
     { name = "pydantic", specifier = ">=2.13" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.3" },
 ]
@@ -630,61 +630,65 @@ dev = [
     { name = "reuse" },
     { name = "ruff" },
 ]
+index-pins = [
+    { name = "cs-image-system-engine" },
+]
 
 [package.metadata]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "bump-my-version", specifier = ">=1.2" },
-    { name = "cs-image-system-ansible-plugin", specifier = ">=0.1.11,<0.2" },
-    { name = "cs-image-system-bash-mod-plugin", specifier = ">=0.1.11,<0.2" },
-    { name = "cs-image-system-default-os-plugin", specifier = ">=0.1.11,<0.2" },
+    { name = "cs-image-system-ansible-plugin", specifier = ">=0.1.11,<0.2", index = "https://test.pypi.org/simple/" },
+    { name = "cs-image-system-bash-mod-plugin", specifier = ">=0.1.11,<0.2", index = "https://test.pypi.org/simple/" },
+    { name = "cs-image-system-default-os-plugin", specifier = ">=0.1.11,<0.2", index = "https://test.pypi.org/simple/" },
     { name = "cs-image-system-gcloud-runtime-plugin", extras = ["test"], editable = "packages/gcloud-runtime-plugin" },
     { name = "cs-image-system-gcs-state-plugin", extras = ["test"], editable = "packages/gcs-state-plugin" },
-    { name = "cs-image-system-local-state-plugin", specifier = ">=0.1.11,<0.2" },
-    { name = "cs-image-system-packer-plugin", specifier = ">=0.1.11,<0.2" },
-    { name = "cs-image-system-posix-identity-plugin", specifier = ">=0.1.11,<0.2" },
-    { name = "cs-image-system-system", extras = ["testing"], specifier = ">=0.1.11,<0.2" },
+    { name = "cs-image-system-local-state-plugin", specifier = ">=0.1.11,<0.2", index = "https://test.pypi.org/simple/" },
+    { name = "cs-image-system-packer-plugin", specifier = ">=0.1.11,<0.2", index = "https://test.pypi.org/simple/" },
+    { name = "cs-image-system-posix-identity-plugin", specifier = ">=0.1.11,<0.2", index = "https://test.pypi.org/simple/" },
+    { name = "cs-image-system-system", extras = ["testing"], specifier = ">=0.1.11,<0.2", index = "https://test.pypi.org/simple/" },
     { name = "cs-image-system-tf-gcp-plugin", extras = ["test"], editable = "packages/tf-gcp-plugin" },
     { name = "pyright", specifier = ">=1.1.390" },
     { name = "pytest", specifier = ">=8.3" },
     { name = "reuse", specifier = ">=6.2.0" },
     { name = "ruff", specifier = ">=0.15" },
 ]
+index-pins = [{ name = "cs-image-system-engine", specifier = ">=0.1.11,<0.2", index = "https://test.pypi.org/simple/" }]
 
 [[package]]
 name = "cs-image-system-hashicorp-utils"
-version = "0.2.0"
-source = { registry = "https://pypi.org/simple" }
+version = "0.2.1"
+source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "cs-image-system-contract" },
     { name = "packaging" },
     { name = "pydantic" },
     { name = "python-hcl2" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/be/ec/4b8f581f2f1d5b3446c4f3aa5b768980c10355c16be82d6b5f5196d39173/cs_image_system_hashicorp_utils-0.2.0.tar.gz", hash = "sha256:7c02f4c0bc22c8ad23ee366b3d50079e50bb829cdc91cd5c6d0d1136e7ce8b60", size = 53004, upload-time = "2026-11-19T15:26:56.769Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/f9/cd/487ff49fabeefd44a66dc2894dc401e30a4dac474852870a1c6b177a083b/cs_image_system_hashicorp_utils-0.2.1.tar.gz", hash = "sha256:eca01318c69af8758f9c11a82870fa35a09c390bab4836b8d6a86b8c9940c600", size = 53180, upload-time = "2026-11-20T16:39:07.208Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a8/0c/0e850693b1247c4fd77ab74f8868822175eb6631edd3d8f25894f453f2a0/cs_image_system_hashicorp_utils-0.2.0-py3-none-any.whl", hash = "sha256:a539ee132c042cdf3e201ea237ff939ec81f83a5d98404f6c0d2268b5870059c", size = 39627, upload-time = "2026-11-19T15:26:53.576Z" },
+    { url = "https://test-files.pythonhosted.org/packages/2a/1c/461f8e369394e9a4383ec9613e15e7558dcfa61531281f2f24f9f149e7e7/cs_image_system_hashicorp_utils-0.2.1-py3-none-any.whl", hash = "sha256:9f6531786716d74bac0261143ad7499cd7b29aefcfc0d147fb4eccd754ff9cf2", size = 39713, upload-time = "2026-11-20T16:39:05.631Z" },
 ]
 
 [[package]]
 name = "cs-image-system-local-state-plugin"
-version = "0.1.11"
-source = { registry = "https://pypi.org/simple" }
+version = "0.1.12"
+source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "cs-image-system-base" },
     { name = "cs-image-system-contract" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ca/3e/5c80947646fb8ca6a08c2eb1a9a5e50b466fb78aeadca615671960cb3369/cs_image_system_local_state_plugin-0.1.11.tar.gz", hash = "sha256:c3178e86cc5ad6dfaeff1957848487571ceb268d1c297fdfcdb63b71c21d1a6b", size = 28565, upload-time = "2026-11-19T15:27:06.227Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/59/54/a27659b73545d6340f7ccaa432ff306d7dcc902ca735a71bc24f71063611/cs_image_system_local_state_plugin-0.1.12.tar.gz", hash = "sha256:8e5b35b5af94b5bc06deee60065dd228307f3f129600fe2e07f49c09ae863bec", size = 28565, upload-time = "2026-11-20T16:39:12.835Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ad/6f/ff1202946626b57ed4075cad14c2923bf49aab6b37e71b787c12602fb456/cs_image_system_local_state_plugin-0.1.11-py3-none-any.whl", hash = "sha256:5ff57871dac71e24fc4db4a46e360d8350f995e4aa120caa8c77ef3c6ffad463", size = 20584, upload-time = "2026-11-19T15:27:05.165Z" },
+    { url = "https://test-files.pythonhosted.org/packages/8c/44/38c23b761a3f9f7bbef4acf74bdf79277ee681d4984d5719deb930545184/cs_image_system_local_state_plugin-0.1.12-py3-none-any.whl", hash = "sha256:d7c0b79bf632a6f6a0e2f9d10356a0744e0893bc46c5ae850febff28819c52c6", size = 20583, upload-time = "2026-11-20T16:39:11.344Z" },
 ]
 
 [[package]]
 name = "cs-image-system-packer-plugin"
-version = "0.1.11"
-source = { registry = "https://pypi.org/simple" }
+version = "0.1.12"
+source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "cs-image-system-base" },
     { name = "cs-image-system-contract" },
@@ -694,29 +698,29 @@ dependencies = [
     { name = "python-hcl2" },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/67/9e/366e10a8df8ef7342641a8287d8b55d96735e14c5e4eac884eed8ac2bfff/cs_image_system_packer_plugin-0.1.11.tar.gz", hash = "sha256:aeebbca44f10391cd901b0a8f38ee706ca504b03d76ef8f8f4e23f3fe451df06", size = 61214, upload-time = "2026-11-19T15:27:08.363Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/52/b7/da1a7da894a85e108becf52968d20569c997a31a067d179efaf88cce4414/cs_image_system_packer_plugin-0.1.12.tar.gz", hash = "sha256:dc032d151f5a72cf97471f72f8b446275d665b556c7f3628535e4f0a988cfad1", size = 61695, upload-time = "2026-11-20T16:39:15.472Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/9b/c22857bd5a071ab01b66f22372ff21eb04975f25701482b7b0de44dcb1cc/cs_image_system_packer_plugin-0.1.11-py3-none-any.whl", hash = "sha256:fc293fa5a23ab489fc71749463b2d3a1da4948926109094f902d7bd9d1a073f2", size = 47326, upload-time = "2026-11-19T15:27:07.35Z" },
+    { url = "https://test-files.pythonhosted.org/packages/ee/3b/98a8386b0efc25650d358f7e9833e8e7cdf7ffb28ca4a9f35012ace2c576/cs_image_system_packer_plugin-0.1.12-py3-none-any.whl", hash = "sha256:dfb0925061d5dea178af680f060fa514b5b4fa8071ca47a816c8d8c06d17cc31", size = 47570, upload-time = "2026-11-20T16:39:14.011Z" },
 ]
 
 [[package]]
 name = "cs-image-system-posix-identity-plugin"
-version = "0.1.11"
-source = { registry = "https://pypi.org/simple" }
+version = "0.1.12"
+source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "cs-image-system-base" },
     { name = "cs-image-system-contract" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/63/0f/274093c739fa4f8665bbd3832fbf4bdb9dabdd02ee74c002fe93c28631d1/cs_image_system_posix_identity_plugin-0.1.11.tar.gz", hash = "sha256:1eb0587ce5765adcc2189c6a5f0bc68675e956d7c7514b1885021e54aa78326e", size = 21738, upload-time = "2026-11-19T15:27:10.352Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/6d/f5/27615c511384a846814ec34258971194420d3e074a03dbe1bcc72820e9f9/cs_image_system_posix_identity_plugin-0.1.12.tar.gz", hash = "sha256:4261e76a455cd5a0a56cd016977724025095202d8b634a06f25b763e2692b05d", size = 21742, upload-time = "2026-11-20T16:39:17.934Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8d/ba/e9555187eb7ff536af676f802197e2f3512247564346d268e1beaa01ee67/cs_image_system_posix_identity_plugin-0.1.11-py3-none-any.whl", hash = "sha256:ce0fd5baec993361912a0d0fedb3697418d3144bc380cb7d6713edcfc310202b", size = 24363, upload-time = "2026-11-19T15:27:09.387Z" },
+    { url = "https://test-files.pythonhosted.org/packages/b3/d8/40084a0fe85b4f3aa5702272b612225afec701950f5a1da2172adba5e070/cs_image_system_posix_identity_plugin-0.1.12-py3-none-any.whl", hash = "sha256:c6f5dfc171e8b4fd93f0888f96f9c0d2cffb58b4da427fb023771acab0984688", size = 24365, upload-time = "2026-11-20T16:39:16.892Z" },
 ]
 
 [[package]]
 name = "cs-image-system-system"
-version = "0.1.11"
-source = { registry = "https://pypi.org/simple" }
+version = "0.1.12"
+source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "cs-image-system-base" },
     { name = "cs-image-system-engine" },
@@ -726,9 +730,9 @@ dependencies = [
     { name = "rich" },
     { name = "typer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d5/ae/1dad5d3719b071569d7285c00b34f1d1b4f077808dd3697aba9169330013/cs_image_system_system-0.1.11.tar.gz", hash = "sha256:0477a8f4868b6354c1adb01b15a804252ed4e24b388be6ee5e9e1c9073782c36", size = 279999, upload-time = "2026-11-19T15:27:12.6Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/31/23/5e54c5c5b68679ac51a7995c2c8535fdd58a9dcf2a8e6c2780b0160f9728/cs_image_system_system-0.1.12.tar.gz", hash = "sha256:ab7a4a9971b411ccec4759512c102e7cd133428dff24d218af3d1c7ce9fbc8ff", size = 280226, upload-time = "2026-11-20T16:39:21.167Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0d/44/574ea7e486871da155eb80d605f3012c8ea2a9c57dc1493bd5ceae07aa08/cs_image_system_system-0.1.11-py3-none-any.whl", hash = "sha256:fce654ba20daee135f142d45e4fe84177d1cfccf2c5c474d927da7d628c0bc95", size = 310861, upload-time = "2026-11-19T15:27:11.453Z" },
+    { url = "https://test-files.pythonhosted.org/packages/a9/0d/9cd734e4326f79bdf220149105da9951ca9ce7f0d7e5b72675c2c313ca32/cs_image_system_system-0.1.12-py3-none-any.whl", hash = "sha256:14e3aef2021e9795afe4d646b3151cbbcfdc32c586b1211679f2efa083a430d0", size = 310992, upload-time = "2026-11-20T16:39:19.198Z" },
 ]
 
 [package.optional-dependencies]
@@ -757,11 +761,11 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cs-image-system-base", specifier = ">=0.2,<0.3" },
-    { name = "cs-image-system-contract", specifier = ">=0.5,<0.7" },
+    { name = "cs-image-system-base", specifier = ">=0.2,<0.3", index = "https://test.pypi.org/simple/" },
+    { name = "cs-image-system-contract", specifier = ">=0.5,<0.7", index = "https://test.pypi.org/simple/" },
     { name = "cs-image-system-gcloud-runtime-plugin", editable = "packages/gcloud-runtime-plugin" },
-    { name = "cs-image-system-hashicorp-utils", specifier = ">=0.2,<0.3" },
-    { name = "cs-image-system-tofu-roots", specifier = ">=0.2,<0.3" },
+    { name = "cs-image-system-hashicorp-utils", specifier = ">=0.2,<0.3", index = "https://test.pypi.org/simple/" },
+    { name = "cs-image-system-tofu-roots", specifier = ">=0.2,<0.3", index = "https://test.pypi.org/simple/" },
     { name = "google-cloud-compute", specifier = ">=1.49" },
     { name = "pydantic", specifier = ">=2.13" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.3" },
@@ -770,17 +774,17 @@ provides-extras = ["test"]
 
 [[package]]
 name = "cs-image-system-tofu-roots"
-version = "0.2.0"
-source = { registry = "https://pypi.org/simple" }
+version = "0.2.1"
+source = { registry = "https://test.pypi.org/simple/" }
 dependencies = [
     { name = "cs-image-system-base" },
     { name = "cs-image-system-contract" },
     { name = "cs-image-system-hashicorp-utils" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2f/81/52e583d46722a8a974fcade11b072cb7cc1ad44c89349c7b7979068c6032/cs_image_system_tofu_roots-0.2.0.tar.gz", hash = "sha256:41ca0b763a614b080c2cdcab0837d55f21a363b4bb5197fecb484150696916a5", size = 69715, upload-time = "2026-11-19T15:27:18.179Z" }
+sdist = { url = "https://test-files.pythonhosted.org/packages/63/0f/bf3972aed42a4d27729a1c99a677f46d07c5a1c41c1276075d0399a52669/cs_image_system_tofu_roots-0.2.1.tar.gz", hash = "sha256:cca1d38dbe0689fbb2813f31252e051500ec30c9fbe3d48144ed36d6a279ee8e", size = 69976, upload-time = "2026-11-20T16:39:26.97Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/65/6c/b439186c7eb2e4b8ebdff40e07638e557d6a7dd8e85268fa839fb70faa81/cs_image_system_tofu_roots-0.2.0-py3-none-any.whl", hash = "sha256:268605efc7bd44062bf1964093a4cf87ac94bc98fdde2283cc0a62c13cce9231", size = 52493, upload-time = "2026-11-19T15:27:16.915Z" },
+    { url = "https://test-files.pythonhosted.org/packages/6e/5b/df348727b43d89ce4e9672d8f4c0d15b8a2fe18d708d76ad7af164e57311/cs_image_system_tofu_roots-0.2.1-py3-none-any.whl", hash = "sha256:74c3d0ad10824bb8f3252c65b417a692affafd549f277862913d381957eaa559", size = 52601, upload-time = "2026-11-20T16:39:25.504Z" },
 ]
 
 [[package]]

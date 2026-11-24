@@ -68,7 +68,7 @@ down.
 ## Releasing
 
 ```sh
-just release <part> pypi            # full-test, then a commit and the tag v<version>
+just release <part>                 # full-test, then a commit and the tag v<version>
 git push origin HEAD v<version>     # the tag's push publishes the three
 ```
 
@@ -79,7 +79,7 @@ commits and tags `v<version>`. `yes` as a third argument is the dry form:
 the plan, with nothing changed.
 
 Pushing the tag publishes the release: the `Publish` workflow uploads the
-three to TestPyPI and then, for a final version, PyPI, by trusted
+three to TestPyPI (alone until 1.0: PyPI keeps its last versions), by trusted
 publishing, so no upload token is stored anywhere.
 [docs/RELEASING.md](docs/RELEASING.md) says how that trust is set up on
 each index and in the repository, and what a fork must change to publish
