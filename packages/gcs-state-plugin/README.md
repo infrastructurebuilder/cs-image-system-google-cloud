@@ -392,8 +392,12 @@ meet it: the symptom, what it means, and what to do.
 - `Name '<name>' contains invalid characters` / `Name cannot be in
   '['default', None, '', 'self']'` -- rename the backend.
 - `state backend type 'gcs' is registered by no installed plugin:
-  install the extra: uv tool install 'cs-image-system[gcloud]'` (one
-  line under `Validation failed with 1 error(s).`) -- the plugin is not
+  install the extra: uv tool install --python 3.13 --index-url
+  https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/
+  --index-strategy unsafe-first-match 'cs-image-system[gcloud]==<the
+  installed release>'` (one line under `Validation failed with 1
+  error(s).`; the command is the system's one install form until 1.0, at
+  the release you have installed) -- the plugin is not
   installed in the environment that loaded the tree: it comes with the
   umbrella's `[gcloud]` extra, never with the bare install (it is a
   workspace member here, so this means a foreign or partial install).
