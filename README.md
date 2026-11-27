@@ -30,9 +30,12 @@ An operator installs the family through the system's own `gcloud` extra:
 uv tool install 'cs-image-system[gcloud]'
 ```
 
-The extra installs the family's three distributions by a range on their
-releases. The system's operations guide states the install once, with
-every provider's extra:
+In the system's tree the extra names the family's three distributions by
+a range on their releases; each release of the system pins them exactly,
+at the family's newest TestPyPI release inside that range, so a new
+release of the family reaches an install with the system's next release.
+The system's operations guide states the install once, with every
+provider's extra:
 [OPERATIONS.md, "Installing a release"](https://github.com/infrastructurebuilder/cs-image-system-3/blob/develop/docs/OPERATIONS.md#installing-a-release).
 
 ## Building and testing
